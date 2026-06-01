@@ -1086,6 +1086,7 @@
               <option value="naturalMinor">Natural Minor (Aeolian)</option>
               <option value="phrygian">Phrygian</option>
               <option value="chromatic12">Chromatic 12 Semitons</option>
+              <option value="dodecaphonicRow">Dodecafonica (Serie de 12)</option>
               <option value="semitonalCluster">Semitonal Cluster</option>
             </select>
           </div>
@@ -1321,6 +1322,8 @@
         }
       };
 
+      const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
       const SCALE_LIBRARY = {
         minorPentatonic: {
           label: "Minor Pentatonic",
@@ -1357,6 +1360,11 @@
         chromatic12: {
           label: "Chromatic 12 Semitons",
           intervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        },
+        dodecaphonicRow: {
+          label: "Dodecafonica (Serie de 12)",
+          intervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          toneRow: true
         },
         semitonalCluster: {
           label: "Semitonal Cluster",
@@ -1660,6 +1668,10 @@
           advice: "Mix equilibrado.",
           recentFrequencies: []
         },
+        dodecaphonic: {
+          row: [],
+          positions: {}
+        },
         logLines: [],
         midi: {
           connected: false,
@@ -1766,6 +1778,49 @@
         return (acc / Math.max(0.0001, norm) + 1) * 0.5;
       }
 
+      function normalizeSemitone(value) {
+        return ((value % 12) + 12) % 12;
+      }
+
+      function noteNameFromSemitone(value) {
+        return NOTE_NAMES[normalizeSemitone(value)];
+      }
+
+      function createDodecaphonicRow(baseSeed) {
+        const row = [];
+        for (let i = 0; i < 12; i += 1) {
+          row.push(i);
+        }
+
+        let localSeed = (Math.abs(Math.floor(baseSeed)) % 2147483647) || 1;
+        for (let i = row.length - 1; i > 0; i -= 1) {
+          localSeed = (localSeed * 48271) % 2147483647;
+          const j = Math.floor((localSeed / 2147483647) * (i + 1));
+          const temp = row[i];
+          row[i] = row[j];
+          row[j] = temp;
+        }
+
+        return row;
+      }
+
+      function resetDodecaphonicSequence() {
+        const baseSeed = state.seed + Math.floor(state.rootHz * 10) + Math.floor(state.chaos * 1000) + state.fractalDepth * 97;
+        state.dodecaphonic.row = createDodecaphonicRow(baseSeed);
+        state.dodecaphonic.positions = {};
+      }
+
+      function getDodecaphonicInterval(instId) {
+        if (!state.dodecaphonic.row.length) {
+          resetDodecaphonicSequence();
+        }
+
+        const current = state.dodecaphonic.positions[instId] || 0;
+        const interval = state.dodecaphonic.row[current % state.dodecaphonic.row.length];
+        state.dodecaphonic.positions[instId] = (current + 1) % state.dodecaphonic.row.length;
+        return interval;
+      }
+
       function renderEquationLibrary() {
         const usage = {};
         state.instruments.forEach(function (inst) {
@@ -1792,6 +1847,9 @@
         lines.push("Scale: " + SCALE_LIBRARY[state.scale].label);
         lines.push("Fractal Depth: " + state.fractalDepth + " | Chaos: " + state.chaos.toFixed(2));
         lines.push("Microtonalidade: " + state.microtonalCents.toFixed(0) + " cents");
+        if (state.scale === "dodecaphonicRow" && state.dodecaphonic.row.length) {
+          lines.push("Serie 12: " + state.dodecaphonic.row.map(noteNameFromSemitone).join(" - "));
+        }
         lines.push("");
         state.instruments.forEach(function (inst) {
           const eq = EQUATIONS[inst.equation];
@@ -3196,6 +3254,9 @@
         const scaleSelect = document.getElementById("scaleSelect");
         scaleSelect.addEventListener("change", function (event) {
           state.scale = event.target.value;
+          if (state.scale === "dodecaphonicRow") {
+            resetDodecaphonicSequence();
+          }
           renderEquationMonitor();
           renderEquationLiveInspector();
         });
@@ -3546,11 +3607,19 @@
       }
 
       function computeNoteFrequency(inst, value, step) {
-        const intervals = SCALE_LIBRARY[state.scale].intervals;
+        const scaleData = SCALE_LIBRARY[state.scale] || SCALE_LIBRARY.minorPentatonic;
+        const intervals = scaleData.intervals;
         const fract = fractalSignature(step, state.fractalDepth, inst.seedOffset);
         const combined = clamp(value * (0.72 + state.chaos * 0.18) + fract * 0.28, 0, 0.999);
-        const index = Math.floor(combined * intervals.length);
-        const interval = intervals[index % intervals.length];
+        let interval = 0;
+
+        if (scaleData.toneRow) {
+          interval = getDodecaphonicInterval(inst.id);
+        } else {
+          const index = Math.floor(combined * intervals.length);
+          interval = intervals[index % intervals.length];
+        }
+
         const octaveOffset = inst.octave + Math.floor(fract * 2) - 1;
         const microShape = Math.sin((step + inst.seedOffset * 0.8) * 0.37 + fract * Math.PI * 2);
         const microSemitone = (state.microtonalCents / 100) * microShape;
