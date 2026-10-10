@@ -1,0 +1,167 @@
+@media (max-width: 1280px) {
+  :root {
+    --topbar-h: 136px;
+  }
+
+  .topbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .engine-status {
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 1120px) {
+  .topbar {
+    position: static;
+  }
+
+  .engine-status {
+    white-space: normal;
+  }
+
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    padding-right: 0;
+  }
+
+  .workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 0;
+  }
+
+  .workflow-step:nth-child(3) {
+    padding-left: 4px;
+    border-left: 0;
+  }
+
+  .graphs-only .visual-panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(150px, 0.6fr) minmax(340px, 1fr) minmax(170px, 0.9fr) minmax(110px, 0.5fr) minmax(110px, 0.5fr);
+    grid-template-areas:
+      "hud"
+      "rack"
+      "cart"
+      "activity"
+      "event"
+      "midi";
+  }
+
+  .graphs-only .hud-top-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px 14px 0;
+  }
+
+  .engine-status {
+    grid-row: 3;
+    margin: 0 -14px;
+    padding: 5px 14px;
+  }
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .header-actions button {
+    flex: 1 1 auto;
+  }
+
+  .action-divider {
+    display: none;
+  }
+
+  .theme-picker {
+    width: 100%;
+  }
+
+  .theme-picker select {
+    flex: 1;
+  }
+
+  .shell {
+    padding: 18px 12px 24px;
+  }
+
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .graph-toolbar,
+  .cartesian-grid,
+  .log-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hud-top-grid,
+  .graphs-only .hud-top-grid,
+  .hud-meter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hud-phi-card {
+    grid-column: 1 / -1;
+  }
+
+  .workflow-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workflow-step,
+  .workflow-step + .workflow-step,
+  .workflow-step:nth-child(3) {
+    padding: 4px;
+    border-left: 0;
+  }
+
+  .scene-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .title {
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+  }
+
+  .graph-focus-btn {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls-grid,
+  .inst-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hud-step-strip {
+    gap: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,45 @@
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  padding: 4px 18px 4px 4px;
+}
+
+.workflow-step + .workflow-step {
+  padding-left: 18px;
+  border-left: 1px dashed var(--line);
+}
+
+.workflow-num {
+  grid-row: span 2;
+  color: var(--accent);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: var(--glow);
+}
+
+.workflow-step h3 {
+  margin: 0;
+  color: var(--fg);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workflow-step p {
+  margin: 0;
+  color: var(--fg-mute);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}

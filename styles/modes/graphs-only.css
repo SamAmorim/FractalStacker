@@ -1,0 +1,111 @@
+.graphs-only {
+  overflow: hidden;
+}
+
+.graphs-only .topbar,
+.graphs-only .sidebar,
+.graphs-only .workflow-panel,
+.graphs-only .rack-panel,
+.graphs-only .equation-panel,
+.graphs-only .footer,
+.graphs-only .graph-toolbar {
+  display: none;
+}
+
+.graphs-only .shell {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: none;
+  height: 100vh;
+  padding: 16px;
+}
+
+.graphs-only .workspace {
+  height: 100%;
+  min-height: 0;
+  padding: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.graphs-only .visual-panel {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(150px, 0.7fr) minmax(170px, 1fr) minmax(170px, 1.1fr) minmax(110px, 0.6fr);
+  grid-template-areas:
+    "hud hud"
+    "rack rack"
+    "cart cart"
+    "activity activity"
+    "event midi";
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.graphs-only .performance-hud {
+  grid-area: hud;
+  gap: 8px;
+}
+
+.graphs-only .hud-top-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.25fr);
+}
+
+.graphs-only .hud-advice {
+  display: none;
+}
+
+.graphs-only #channelRackCanvas {
+  grid-area: rack;
+}
+
+.graphs-only #activityCanvas {
+  grid-area: activity;
+}
+
+.graphs-only #channelRackCanvas,
+.graphs-only #activityCanvas,
+.graphs-only .graph-scope {
+  height: 100%;
+  min-height: 0;
+}
+
+.graphs-only .cartesian-grid {
+  grid-area: cart;
+  min-height: 0;
+}
+
+.graphs-only .graph-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.graphs-only .graph-scope {
+  flex: 1;
+}
+
+.graphs-only .log-grid {
+  display: contents;
+}
+
+.graphs-only .log-card--event {
+  grid-area: event;
+  min-height: 0;
+}
+
+.graphs-only .log-card--midi {
+  grid-area: midi;
+  min-height: 0;
+}
+
+.graphs-only .event-log {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  font-size: clamp(0.7rem, 1vw, 0.86rem);
+}
+
+.graphs-only .hud-value {
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+}

@@ -1,0 +1,46 @@
+.scene-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.scene-actions button {
+  min-height: 30px;
+  padding: 0 6px;
+  font-size: 0.62rem;
+}
+
+.scene-actions #sceneSaveBtn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.scene-status {
+  margin-top: 10px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--canvas-bg);
+  color: var(--fg-dim);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.scene-status::before {
+  content: "> ";
+  color: var(--accent);
+}
+
+.scene-status.alert {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--canvas-bg));
+}
+
+.scene-status.alert::before {
+  content: "! ";
+  color: var(--danger);
+}

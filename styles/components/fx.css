@@ -1,0 +1,26 @@
+.fx-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.fx-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.fx-card:has(.fx-head input:not(:checked)) > .control {
+  opacity: 0.5;
+}
+
+.fx-head {
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.fx-panel:has(#fxEnabled:not(:checked)) .fx-grid {
+  opacity: 0.55;
+}

@@ -1,0 +1,108 @@
+.instrument-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+
+.inst-row {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color 120ms ease, opacity 120ms ease;
+}
+
+.inst-row:hover {
+  border-color: var(--line-strong);
+}
+
+.inst-row:has([data-field="enabled"]:checked) {
+  border-left: 3px solid var(--accent);
+}
+
+.inst-row:has([data-field="enabled"]:not(:checked)) .inst-body {
+  opacity: 0.45;
+}
+
+.inst-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.inst-meta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inst-name {
+  color: var(--fg);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: var(--glow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inst-type {
+  color: var(--fg-mute);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.inst-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-dim);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.inst-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+  transition: opacity 120ms ease;
+}
+
+.inst-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.pad-learn-btn {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 0.6rem;
+}
+
+.pad-learn-btn.on {
+  border-color: var(--warn);
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  animation: blink 0.9s steps(1) infinite;
+}
+
+.inst-pad-map {
+  color: var(--fg-mute);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

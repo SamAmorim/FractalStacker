@@ -1,0 +1,86 @@
+.progression {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.progression-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--fg-dim);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.progression-meta #sectionName {
+  color: var(--accent-2);
+}
+
+.progression-chords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+}
+
+.chord-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--fg-dim);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+
+.chord-chip.past {
+  color: var(--fg-mute);
+  border-style: dashed;
+}
+
+.chord-chip.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  box-shadow: var(--glow-box);
+  text-shadow: var(--glow);
+}
+
+.chord-chip.idle {
+  color: var(--fg-mute);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.energy-track {
+  height: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.energy-fill {
+  width: 0%;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--accent-2) 0 4px, transparent 4px 5px);
+  transition: width 400ms ease;
+}
+
+.compose-actions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.compose-actions #reharmonizeBtn {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
