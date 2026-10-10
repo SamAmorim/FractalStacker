@@ -2,8 +2,9 @@ import { audio, ensureAudio, hardSilence, restoreMasterLevel } from "../audio/en
 import { killAllVoices } from "../audio/voices.js";
 import { state } from "../core/state.js";
 import { initMidi } from "../midi/input.js";
-import { clearMidiMappings, setMidiLearnArmed, setMidiLearnTarget } from "../midi/learn.js";
+import { cancelMidiLearn, clearMidiMappings, setMidiLearnArmed, setMidiLearnTarget } from "../midi/learn.js";
 import { startScheduler, stopScheduler } from "../sequencer/scheduler.js";
+import { applyFxOnlyFromScene } from "../scenes/scenes.js";
 import { dom } from "./dom.js";
 import { renderPerformanceHud } from "./hud.js";
 import { renderInstrumentRack } from "./instrument-rack.js";
@@ -11,27 +12,60 @@ import { appendLog } from "./log.js";
 import { refreshEngineStatus } from "./status.js";
 import { drawEquationCartesian, drawHarmonicCartesian } from "../visuals/cartesian.js";
 import { drawChannelRack } from "../visuals/channel-rack.js";
+import { onDemoModeChanged } from "../visuals/demo-slides.js";
+
+function syncDemoChrome() {
+  if (dom.demoChrome) {
+    dom.demoChrome.hidden = !state.graphsOnly;
+  }
+  document.body.classList.toggle("demo-tech", Boolean(state.graphsOnly && state.demoTech));
+  if (dom.demoTechToggle) {
+    dom.demoTechToggle.classList.toggle("on", Boolean(state.demoTech));
+    dom.demoTechToggle.setAttribute("aria-pressed", state.demoTech ? "true" : "false");
+    dom.demoTechToggle.textContent = state.demoTech ? "Tech On" : "Tech";
+  }
+  if (dom.demoChromeMeta) {
+    const bpm = Math.round(state.bpm || 0);
+    dom.demoChromeMeta.textContent = (state.demoTech ? "DEMO · TECH  " : "DEMO  ") + bpm + " BPM";
+  }
+}
+
+export function setDemoTech(enabled, silent) {
+  state.demoTech = Boolean(enabled);
+  syncDemoChrome();
+  if (!silent) {
+    appendLog(state.demoTech ? "demo tech overlay ON" : "demo tech overlay OFF");
+  }
+  refreshEngineStatus();
+}
 
 export function setGraphsOnlyMode(enabled, silent) {
   state.graphsOnly = Boolean(enabled);
   document.body.classList.toggle("graphs-only", state.graphsOnly);
+  if (!state.graphsOnly) {
+    state.demoTech = false;
+  }
   if (state.graphsOnly) {
     window.scrollTo(0, 0);
   }
 
   if (dom.graphFocusBtn) {
     dom.graphFocusBtn.classList.toggle("on", state.graphsOnly);
-    dom.graphFocusBtn.textContent = state.graphsOnly ? "Voltar Studio" : "Modo Graficos";
+    dom.graphFocusBtn.textContent = state.graphsOnly ? "Studio" : "Modo Demo";
     dom.graphFocusBtn.setAttribute("aria-pressed", state.graphsOnly ? "true" : "false");
   }
 
-  drawEquationCartesian();
-  drawHarmonicCartesian();
-  drawChannelRack();
-  renderPerformanceHud();
+  syncDemoChrome();
+  onDemoModeChanged(state.graphsOnly);
+  window.requestAnimationFrame(function () {
+    drawEquationCartesian();
+    drawHarmonicCartesian();
+    drawChannelRack();
+    renderPerformanceHud();
+  });
 
   if (!silent) {
-    appendLog(state.graphsOnly ? "modo graficos ON" : "modo graficos OFF");
+    appendLog(state.graphsOnly ? "modo demo ON (G sair · D tech)" : "modo demo OFF");
   }
 }
 
@@ -61,6 +95,7 @@ export async function togglePower() {
   }
 
   refreshEngineStatus();
+  syncDemoChrome();
 }
 
 function runTogglePower() {
@@ -84,6 +119,9 @@ export function bindButtons() {
   });
 
   dom.midiClearBtn.addEventListener("click", function () {
+    if (!window.confirm("Apagar todos os mapeamentos MIDI aprendidos?")) {
+      return;
+    }
     clearMidiMappings();
   });
 
@@ -94,7 +132,42 @@ export function bindButtons() {
     });
   }
 
+  if (dom.demoExitBtn) {
+    dom.demoExitBtn.addEventListener("click", function () {
+      setGraphsOnlyMode(false);
+      refreshEngineStatus();
+    });
+  }
+
+  if (dom.demoTechToggle) {
+    dom.demoTechToggle.addEventListener("click", function () {
+      if (!state.graphsOnly) {
+        return;
+      }
+      setDemoTech(!state.demoTech);
+    });
+  }
+
+  if (dom.sceneRecallFxBtn) {
+    dom.sceneRecallFxBtn.addEventListener("click", function () {
+      applyFxOnlyFromScene(state.scenes.selectedSlot, "button");
+    });
+  }
+
   document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      if (state.midi.learnArmed || state.midi.padLearnInstrumentId) {
+        event.preventDefault();
+        cancelMidiLearn();
+        return;
+      }
+      if (state.graphsOnly) {
+        setGraphsOnlyMode(false);
+        refreshEngineStatus();
+      }
+      return;
+    }
+
     const tag = (event.target && event.target.tagName) || "";
     if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
       return;
@@ -113,14 +186,18 @@ export function bindButtons() {
       return;
     }
 
-    if (event.key === "Escape" && state.graphsOnly) {
-      setGraphsOnlyMode(false);
-      refreshEngineStatus();
+    if ((event.key === "d" || event.key === "D") && state.graphsOnly) {
+      event.preventDefault();
+      setDemoTech(!state.demoTech);
     }
   });
 
   document.addEventListener("click", function (event) {
     if (!state.midi.learnArmed) {
+      return;
+    }
+
+    if (event.target.closest(".midi-panel") || event.target.closest("#midiLearnBtn") || event.target.closest("#midiClearBtn") || event.target.closest(".demo-chrome")) {
       return;
     }
 
@@ -130,8 +207,14 @@ export function bindButtons() {
     }
 
     const controlId = mappedControl.getAttribute("data-midi-map");
-    if (controlId) {
-      setMidiLearnTarget(controlId);
+    if (!controlId) {
+      return;
     }
-  });
+
+    event.preventDefault();
+    event.stopPropagation();
+    setMidiLearnTarget(controlId);
+  }, true);
+
+  syncDemoChrome();
 }

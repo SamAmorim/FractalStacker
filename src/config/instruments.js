@@ -16,6 +16,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: 0,
     stepDiv: 1,
     seedOffset: 7,
+    fx: { delayEnabled: false, delayMix: 0.1, reverbEnabled: false, reverbAmount: 0.08 },
     eqState: {}
   },
   {
@@ -35,6 +36,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: -1,
     stepDiv: 2,
     seedOffset: 17,
+    fx: { delayEnabled: false, delayMix: 0.12, reverbEnabled: false, reverbAmount: 0.1 },
     eqState: {}
   },
   {
@@ -54,6 +56,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: 0,
     stepDiv: 4,
     seedOffset: 27,
+    fx: { delayEnabled: true, delayTime: 0.32, delayFeedback: 0.3, delayMix: 0.22, reverbEnabled: true, reverbAmount: 0.28 },
     eqState: {}
   },
   {
@@ -73,6 +76,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: 1,
     stepDiv: 2,
     seedOffset: 39,
+    fx: { delayEnabled: true, delayTime: 0.26, delayFeedback: 0.34, delayMix: 0.2, reverbEnabled: true, reverbAmount: 0.18 },
     eqState: {}
   },
   {
@@ -92,6 +96,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: 0,
     stepDiv: 1,
     seedOffset: 45,
+    fx: { delayEnabled: true, delayTime: 0.2, delayFeedback: 0.36, delayMix: 0.26, reverbEnabled: false, reverbAmount: 0.12 },
     eqState: {}
   },
   {
@@ -111,6 +116,7 @@ export const INSTRUMENT_DEFAULTS = [
     octave: 0,
     stepDiv: 1,
     seedOffset: 51,
+    fx: { delayEnabled: false, delayMix: 0.16, reverbEnabled: true, reverbAmount: 0.34 },
     eqState: {}
   }
 ];

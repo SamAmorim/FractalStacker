@@ -58,10 +58,10 @@ export function renderPerformanceHud() {
 
   if (dom.hudTempo) {
     const trend = Math.abs(delta) > 0.05 && state.monitor.trend !== "Estavel" ? " | " + signedDelta : "";
-    dom.hudTempo.textContent = state.bpm.toFixed(1) + " BPM | 4/4" + trend;
+    dom.hudTempo.textContent = state.bpm.toFixed(1) + " BPM · 4/4" + trend;
   }
   if (dom.hudBarBeat) {
-    dom.hudBarBeat.textContent = "Compasso " + barNumber + " | Beat " + beatInBar + "/4 | Step " + (stepInBar + 1) + "/16";
+    dom.hudBarBeat.textContent = barNumber + " · " + beatInBar + "/4 · " + (stepInBar + 1) + "/16";
   }
   if (dom.hudHarmony) {
     const compose = state.compose;
@@ -71,7 +71,10 @@ export function renderPerformanceHud() {
     dom.hudHarmony.title = compose.section;
   }
   if (dom.hudKey) {
-    dom.hudKey.textContent = state.monitor.keyStatus + " | " + state.monitor.keyCents.toFixed(1) + " ct";
+    dom.hudKey.textContent = state.powered
+      ? state.monitor.keyStatus + " · " + state.monitor.keyCents.toFixed(1) + " ct"
+      : state.monitor.keyStatus;
+    dom.hudKey.title = dom.hudKey.textContent;
   }
 
   if (dom.hudClip) {
@@ -101,12 +104,25 @@ export function renderPerformanceHud() {
 
   if (dom.hudAdvice) {
     const speedTag = state.bpm >= 150 ? "Rapido" : state.bpm <= 85 ? "Lento" : "Moderado";
+    const wetLayers = state.instruments.filter(function (inst) {
+      return inst.fx && (inst.fx.delayEnabled || inst.fx.reverbEnabled || Number(inst.fx.sendAmount) > 0.01);
+    }).length;
     dom.hudAdvice.textContent =
       state.monitor.advice +
       " | Velocidade: " +
       speedTag +
       " | MIDI: " +
-      (state.midi.connected ? "ON" : "OFF");
+      (state.midi.connected ? "ON" : "OFF") +
+      " | FX: " +
+      (state.fx.enabled ? "master" : "off") +
+      "/" +
+      wetLayers +
+      "wet";
+  }
+
+  if (state.graphsOnly && dom.demoChromeMeta) {
+    const bpm = Math.round(state.bpm || 0);
+    dom.demoChromeMeta.textContent = (state.demoTech ? "DEMO · TECH  " : "DEMO  ") + bpm + " BPM";
   }
 
   renderHudStepStrip();

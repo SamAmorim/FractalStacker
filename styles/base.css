@@ -1,7 +1,11 @@
 :root {
   --font-mono: "IBM Plex Mono", "JetBrains Mono", "Cascadia Mono", "Fira Code", Consolas, "Courier New", monospace;
   --radius: 4px;
-  --topbar-h: 92px;
+  --topbar-h: 88px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 *,

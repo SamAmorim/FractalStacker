@@ -1,0 +1,124 @@
+.midi-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px 10px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--canvas-bg);
+}
+
+.midi-toolbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.midi-toolbar--actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.midi-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--fg-mute);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.midi-field select {
+  width: 100%;
+  min-width: 0;
+  font-size: 0.72rem;
+}
+
+.midi-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.midi-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg-dim);
+  font-size: 0.68rem;
+}
+
+.midi-bindings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.midi-empty {
+  margin: 0;
+  color: var(--fg-mute);
+  font-size: 0.68rem;
+}
+
+.midi-binding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--panel);
+}
+
+.midi-binding-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 0.68rem;
+  color: var(--fg-dim);
+}
+
+.midi-binding-main strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.midi-binding-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.midi-binding-actions select {
+  max-width: 96px;
+  font-size: 0.65rem;
+}
+
+.midi-mode-fixed {
+  color: var(--fg-mute);
+  font-size: 0.65rem;
+}
+
+.midi-unbind {
+  min-width: 28px;
+  padding: 2px 6px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.midi-panel .midi-map-log {
+  height: 110px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.log-card--midi .event-log.midi-map-log {
+  height: 110px;
+}

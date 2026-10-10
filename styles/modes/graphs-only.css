@@ -1,5 +1,15 @@
+/* Modo Demo — clean full-stage view for demos & recordings */
+
 .graphs-only {
   overflow: hidden;
+}
+
+.graphs-only::before {
+  opacity: 0.5;
+}
+
+.graphs-only::after {
+  opacity: 0.28;
 }
 
 .graphs-only .topbar,
@@ -7,105 +17,292 @@
 .graphs-only .workflow-panel,
 .graphs-only .rack-panel,
 .graphs-only .equation-panel,
+.graphs-only .lab-panel,
 .graphs-only .footer,
-.graphs-only .graph-toolbar {
-  display: none;
+.graphs-only .stage-tools,
+.graphs-only .stage-head {
+  display: none !important;
+}
+
+.graphs-only .demo-chrome {
+  display: flex !important;
+}
+
+.graphs-only.demo-tech .lab-panel {
+  display: block !important;
 }
 
 .graphs-only .shell {
   grid-template-columns: minmax(0, 1fr);
   max-width: none;
+  width: 100%;
   height: 100vh;
-  padding: 16px;
+  height: 100dvh;
+  margin: 0;
+  padding: 58px 20px 16px;
+  box-sizing: border-box;
 }
 
 .graphs-only .workspace {
   height: 100%;
   min-height: 0;
-  padding: 8px 0 0;
-  display: flex;
-  flex-direction: column;
+  padding: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.graphs-only.demo-tech .workspace {
+  grid-template-rows: minmax(0, 1fr) minmax(120px, 24vh);
+  gap: 12px;
 }
 
 .graphs-only .visual-panel {
-  flex: 1;
   min-height: 0;
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: auto minmax(150px, 0.7fr) minmax(170px, 1fr) minmax(170px, 1.1fr) minmax(110px, 0.6fr);
+  grid-template-rows:
+    auto
+    minmax(120px, 0.65fr)
+    minmax(140px, 1fr)
+    minmax(160px, 1.15fr);
   grid-template-areas:
     "hud hud"
     "rack rack"
-    "cart cart"
-    "activity activity"
-    "event midi";
+    "eq harm"
+    "activity activity";
   gap: 12px;
-  overflow-y: auto;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .graphs-only .performance-hud {
   grid-area: hud;
   gap: 8px;
+  margin: 0;
 }
 
 .graphs-only .hud-top-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.25fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.2fr);
 }
 
 .graphs-only .hud-advice {
   display: none;
 }
 
-.graphs-only #channelRackCanvas {
+.graphs-only .hud-value {
+  font-size: clamp(1rem, 1.7vw, 1.4rem);
+}
+
+.graphs-only .hud-label {
+  font-size: 0.58rem;
+}
+
+.graphs-only .hud-meter-grid {
+  max-width: 960px;
+}
+
+.graphs-only .demo-scope--rack {
   grid-area: rack;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.graphs-only #activityCanvas {
+.graphs-only .cartesian-grid {
+  display: contents;
+}
+
+.graphs-only .graph-card[data-demo-frame="eq"] {
+  grid-area: eq;
+}
+
+.graphs-only .graph-card[data-demo-frame="harm"] {
+  grid-area: harm;
+}
+
+.graphs-only .demo-scope--hero {
   grid-area: activity;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
+.graphs-only .demo-scope,
+.graphs-only .graph-card {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.graphs-only .demo-scope-label {
+  display: none;
+}
+
+.graphs-only .demo-scope .scope,
+.graphs-only .graph-card .scope,
 .graphs-only #channelRackCanvas,
 .graphs-only #activityCanvas,
 .graphs-only .graph-scope {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-color: var(--line);
+}
+
+.graphs-only .graph-card {
+  margin: 0;
+}
+
+.graphs-only .graph-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+/* Minimal chrome — no theater */
+.graphs-only .demo-chrome {
+  align-items: center;
+  height: 46px;
+  padding: 0 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+}
+
+.graphs-only .demo-chrome-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graphs-only .demo-chrome-brand strong {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.graphs-only .demo-chrome-brand small {
+  display: none;
+}
+
+.graphs-only .demo-chrome-phi {
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.graphs-only .demo-chrome-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graphs-only .demo-rec-dot {
+  display: none;
+}
+
+.graphs-only .demo-chrome-meta {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+}
+
+.graphs-only .demo-chrome-actions {
+  pointer-events: auto;
+}
+
+.graphs-only .demo-chrome-actions .led-btn,
+.graphs-only .demo-chrome-actions .btn-ghost {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.66rem;
+  background: var(--bg);
+}
+
+.demo-enter-flash {
+  display: none !important;
+}
+
+/* Tech strip */
+.graphs-only.demo-tech .lab-panel {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.graphs-only.demo-tech .lab-panel > .panel-title,
+.graphs-only.demo-tech .lab-panel > .panel-hint {
+  display: none;
+}
+
+.graphs-only.demo-tech .lab-panel .log-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   height: 100%;
   min-height: 0;
 }
 
-.graphs-only .cartesian-grid {
-  grid-area: cart;
+.graphs-only.demo-tech .log-card {
   min-height: 0;
+  height: 100%;
 }
 
-.graphs-only .graph-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+.graphs-only.demo-tech .event-log,
+.graphs-only.demo-tech .midi-panel {
+  height: 100%;
+  max-height: none;
 }
 
-.graphs-only .graph-scope {
-  flex: 1;
+.graphs-only.demo-tech .midi-panel {
+  overflow: auto;
 }
 
-.graphs-only .log-grid {
-  display: contents;
+.graphs-only.demo-tech .midi-bindings {
+  max-height: 56px;
 }
 
-.graphs-only .log-card--event {
-  grid-area: event;
-  min-height: 0;
+@media (max-width: 1100px) {
+  .graphs-only .shell {
+    padding: 56px 12px 12px;
+  }
+
+  .graphs-only .visual-panel {
+    grid-template-rows: auto minmax(120px, 0.7fr) minmax(140px, 1fr) minmax(150px, 1fr);
+    overflow-y: auto;
+  }
+
+  .graphs-only .hud-top-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.graphs-only .log-card--midi {
-  grid-area: midi;
-  min-height: 0;
-}
+@media (max-width: 760px) {
+  .graphs-only .visual-panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(120px, 0.7fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(150px, 1fr);
+    grid-template-areas:
+      "hud"
+      "rack"
+      "eq"
+      "harm"
+      "activity";
+  }
 
-.graphs-only .event-log {
-  flex: 1;
-  height: auto;
-  min-height: 0;
-  font-size: clamp(0.7rem, 1vw, 0.86rem);
-}
+  .graphs-only .hud-top-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.graphs-only .hud-value {
-  font-size: clamp(1rem, 1.8vw, 1.5rem);
+  .graphs-only .hud-phi-card {
+    grid-column: 1 / -1;
+  }
 }

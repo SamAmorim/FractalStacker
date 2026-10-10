@@ -14,6 +14,7 @@ import {
 import { renderPerformanceHud } from "../ui/hud.js";
 import { renderInstrumentRack } from "../ui/instrument-rack.js";
 import { appendLog } from "../ui/log.js";
+import { applyMidiMapsPayload, persistMidiMaps, serializeMidiMaps } from "../midi/storage.js";
 import { renderMidiMappingStatus } from "../ui/midi-panel.js";
 import { sceneStatusMessage, setSceneStatus, syncSceneUiFromState } from "../ui/scenes-panel.js";
 import { refreshEngineStatus } from "../ui/status.js";
@@ -81,18 +82,7 @@ function createSceneSnapshot(slot) {
       sustain: state.envelope.sustain,
       release: state.envelope.release
     },
-    fx: {
-      enabled: state.fx.enabled,
-      wahEnabled: state.fx.wahEnabled,
-      delayEnabled: state.fx.delayEnabled,
-      reverbEnabled: state.fx.reverbEnabled,
-      wahRate: state.fx.wahRate,
-      wahDepth: state.fx.wahDepth,
-      delayTime: state.fx.delayTime,
-      delayFeedback: state.fx.delayFeedback,
-      delayMix: state.fx.delayMix,
-      reverbAmount: state.fx.reverbAmount
-    },
+    fx: Object.assign({}, state.fx),
     music: Object.assign({}, state.music),
     instruments: state.instruments.map(function (inst) {
       return {
@@ -105,7 +95,8 @@ function createSceneSnapshot(slot) {
         harmonicMix: inst.harmonicMix,
         harmonicTilt: inst.harmonicTilt,
         detune: inst.detune,
-        octave: inst.octave
+        octave: inst.octave,
+        fx: Object.assign({}, inst.fx || {})
       };
     }),
     graph: {
@@ -118,7 +109,8 @@ function createSceneSnapshot(slot) {
     dodecaphonic: {
       row: state.dodecaphonic.row.slice(),
       positions: Object.assign({}, state.dodecaphonic.positions)
-    }
+    },
+    midi: state.midi.embedInScenes ? serializeMidiMaps() : null
   };
 }
 
@@ -211,6 +203,66 @@ export function saveSceneSlot(slot, sourceLabel) {
   return true;
 }
 
+function applyFxFromSnapshot(fx, instruments) {
+  const nextFx = fx || {};
+  setControlValue("fxEnabled", nextFx.enabled);
+  setControlValue("wahEnabled", nextFx.wahEnabled);
+  setControlValue("delayEnabled", nextFx.delayEnabled);
+  setControlValue("reverbEnabled", nextFx.reverbEnabled);
+  setControlValue("wahMode", nextFx.wahMode || "lfo");
+  setControlValue("wahRate", nextFx.wahRate);
+  setControlValue("wahDepth", nextFx.wahDepth);
+  setControlValue("wahPosition", nextFx.wahPosition);
+  setControlValue("delaySync", nextFx.delaySync || "off");
+  setControlValue("delayPingPong", nextFx.delayPingPong);
+  setControlValue("delayTime", nextFx.delayTime);
+  setControlValue("delayFeedback", nextFx.delayFeedback);
+  setControlValue("delayMix", nextFx.delayMix);
+  setControlValue("reverbAmount", nextFx.reverbAmount);
+  setControlValue("reverbSize", nextFx.reverbSize);
+
+  // Keep state in sync for fields without controls or older scenes.
+  Object.keys(nextFx).forEach(function (key) {
+    if (nextFx[key] !== undefined) {
+      state.fx[key] = nextFx[key];
+    }
+  });
+
+  const byId = {};
+  (instruments || []).forEach(function (item) {
+    if (item && item.id) {
+      byId[item.id] = item;
+    }
+  });
+
+  state.instruments.forEach(function (inst) {
+    const next = byId[inst.id];
+    if (next && next.fx && typeof next.fx === "object") {
+      inst.fx = Object.assign({}, inst.fx || {}, next.fx);
+      updateInstrumentMix(inst);
+    }
+  });
+}
+
+export function applyFxOnlyFromScene(slot, sourceLabel) {
+  const safeSlot = sanitizeSceneSlot(slot || state.scenes.selectedSlot);
+  const snapshot = state.scenes.slots[safeSlot];
+  if (!snapshot || !snapshot.fx) {
+    setSceneStatus("Cena " + safeSlot + " sem FX para recall.", true);
+    return false;
+  }
+  armSceneTransition(state.scenes.transitionSec);
+  applyFxFromSnapshot(snapshot.fx, snapshot.instruments);
+  renderInstrumentRack();
+  applyFxParams();
+  refreshEngineStatus();
+  renderPerformanceHud();
+  const source = sourceLabel || "manual";
+  setSceneStatus("FX da cena " + safeSlot + " aplicado (" + source + ").", false);
+  appendLog("scene " + safeSlot + " FX-only applied (" + source + ")");
+  return true;
+}
+
 function applySceneSnapshot(snapshot, slot, sourceLabel) {
   if (!isValidSceneSnapshot(snapshot)) {
     setSceneStatus("Cena " + sanitizeSceneSlot(slot) + " invalida.", true);
@@ -237,17 +289,7 @@ function applySceneSnapshot(snapshot, slot, sourceLabel) {
   setControlValue("envSustain", envelope.sustain);
   setControlValue("envRelease", envelope.release);
 
-  const fx = snapshot.fx || {};
-  setControlValue("fxEnabled", fx.enabled);
-  setControlValue("wahEnabled", fx.wahEnabled);
-  setControlValue("delayEnabled", fx.delayEnabled);
-  setControlValue("reverbEnabled", fx.reverbEnabled);
-  setControlValue("wahRate", fx.wahRate);
-  setControlValue("wahDepth", fx.wahDepth);
-  setControlValue("delayTime", fx.delayTime);
-  setControlValue("delayFeedback", fx.delayFeedback);
-  setControlValue("delayMix", fx.delayMix);
-  setControlValue("reverbAmount", fx.reverbAmount);
+  applyFxFromSnapshot(snapshot.fx || {}, snapshot.instruments);
 
   const music = snapshot.music;
   if (music) {
@@ -324,6 +366,12 @@ function applySceneSnapshot(snapshot, slot, sourceLabel) {
     state.dodecaphonic.positions = Object.assign({}, snapshot.dodecaphonic.positions || {});
   } else if (state.scale === "dodecaphonicRow") {
     resetDodecaphonicSequence();
+  }
+
+  if (state.midi.embedInScenes && snapshot.midi) {
+    applyMidiMapsPayload(snapshot.midi);
+    persistMidiMaps();
+    renderMidiMappingStatus();
   }
 
   renderInstrumentRack();

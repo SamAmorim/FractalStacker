@@ -148,6 +148,9 @@ function scheduleStep(step, when) {
       trigger: trigger,
       value: equationRuntime.combined,
       raw: equationRuntime.raw,
+      fractal: equationRuntime.fractal,
+      threshold: decision.threshold,
+      reason: decision.reason,
       frequency: frequency
     });
 
@@ -188,14 +191,14 @@ function scheduleStep(step, when) {
     })
     .join("  ");
 
-  renderEquationLiveInspector();
-
-  if (step % 2 === 0) {
-    renderEquationMonitor();
-  }
-
-  if (step % 4 === 0) {
-    refreshEngineStatus();
+  if (!state.graphsOnly) {
+    renderEquationLiveInspector();
+    if (step % 2 === 0) {
+      renderEquationMonitor();
+    }
+    if (step % 4 === 0) {
+      refreshEngineStatus();
+    }
   }
 
   if (summaries.length && step % 2 === 0) {

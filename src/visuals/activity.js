@@ -10,61 +10,18 @@ import { canvasFont, palette, tint } from "../ui/theme.js";
 import { resizeCanvasIfNeeded } from "./canvas.js";
 import { drawEquationCartesian, drawHarmonicCartesian } from "./cartesian.js";
 import { drawChannelRack } from "./channel-rack.js";
+import { updateDemoSlides } from "./demo-slides.js";
 
-export function drawVisualizer() {
-  const canvas = dom.activityCanvas;
-  const ctx = canvas.getContext("2d");
-  resizeCanvasIfNeeded(canvas);
-
-  drawEquationCartesian();
-  drawHarmonicCartesian();
-  drawChannelRack();
-  renderPerformanceHud();
-  const width = canvas.width;
-  const height = canvas.height;
-
-  ctx.fillStyle = palette.canvasBg;
-  ctx.fillRect(0, 0, width, height);
-
+function drawLanes(ctx, width, height, laneAreaTop) {
   const barLength = 16;
-  const barNumber = Math.floor(state.scheduler.currentStep / barLength) + 1;
-  const beatInBar = (state.scheduler.currentStep % barLength) + 1;
-
-  ctx.fillStyle = palette.fgDim;
-  ctx.font = canvasFont(Math.max(11, Math.floor(height / 24)));
-  ctx.fillText("compasso " + barNumber + " | step " + state.scheduler.currentStep + " | beat " + beatInBar + "/" + barLength, 8, 16);
-  ctx.fillText("notas: " + state.lastNoteSummary, 8, 31);
-  ctx.fillText("mix: " + state.lastMixSummary, 8, 46);
-  ctx.fillText("midi: " + state.midi.lastMessage, 8, 61);
-
-  let laneAreaTop = 70;
-  if (state.graphsOnly) {
-    const voices = audio.ready ? audio.activeVoices : 0;
-    const maxVoices = MAX_VOICES[state.performanceMode];
-    const mappedKnobs = collectMappedControlIds().length;
-    const mappedPads = Object.keys(state.midi.padMap).length;
-    const selectedInst = getSelectedPlotInstrument();
-    const selectedName = selectedInst ? selectedInst.name : "--";
-    ctx.fillText(
-      "status: " + (state.powered ? "ON" : "OFF") + " | mode " + state.performanceMode.toUpperCase() + " | voices " + voices + "/" + maxVoices,
-      8,
-      76
-    );
-    ctx.fillText(
-      "maps: knobs " + mappedKnobs + " | pads " + mappedPads + " | target " + selectedName,
-      8,
-      91
-    );
-    laneAreaTop = 102;
-  }
-
   const lanes = state.instruments;
   const laneHeight = Math.max(20, (height - laneAreaTop) / lanes.length);
 
   lanes.forEach(function (inst, laneIndex) {
     const yTop = laneAreaTop + laneIndex * laneHeight;
     const yMid = yTop + laneHeight * 0.55;
-    const laneHistory = state.history[inst.id];
+    const laneHistory = state.history[inst.id] || [];
+    const pointCount = laneHistory.length;
 
     ctx.strokeStyle = tint(palette.line, 0.8);
     ctx.beginPath();
@@ -72,7 +29,6 @@ export function drawVisualizer() {
     ctx.lineTo(width, yMid);
     ctx.stroke();
 
-    const pointCount = laneHistory.length;
     for (let i = 0; i < pointCount; i += 1) {
       const point = laneHistory[i];
       const x = (i / Math.max(1, pointCount - 1)) * width;
@@ -118,6 +74,62 @@ export function drawVisualizer() {
       yTop + Math.max(13, laneHeight * 0.3)
     );
   });
+}
 
+export function drawVisualizer() {
+  if (updateDemoSlides()) {
+    renderPerformanceHud();
+    requestAnimationFrame(drawVisualizer);
+    return;
+  }
+
+  const canvas = dom.activityCanvas;
+  const ctx = canvas.getContext("2d");
+  resizeCanvasIfNeeded(canvas);
+
+  drawEquationCartesian();
+  drawHarmonicCartesian();
+  drawChannelRack();
+  renderPerformanceHud();
+
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.fillStyle = palette.canvasBg;
+  ctx.fillRect(0, 0, width, height);
+
+  const barLength = 16;
+  const barNumber = Math.floor(state.scheduler.currentStep / barLength) + 1;
+  const beatInBar = (state.scheduler.currentStep % barLength) + 1;
+
+  ctx.fillStyle = palette.fgDim;
+  ctx.font = canvasFont(Math.max(11, Math.floor(height / 24)));
+  ctx.fillText("compasso " + barNumber + " | step " + state.scheduler.currentStep + " | beat " + beatInBar + "/" + barLength, 8, 16);
+  ctx.fillText("notas: " + state.lastNoteSummary, 8, 31);
+  ctx.fillText("mix: " + state.lastMixSummary, 8, 46);
+  ctx.fillText("midi: " + state.midi.lastMessage, 8, 61);
+
+  let laneAreaTop = 70;
+  if (state.graphsOnly) {
+    const voices = audio.ready ? audio.activeVoices : 0;
+    const maxVoices = MAX_VOICES[state.performanceMode];
+    const mappedKnobs = collectMappedControlIds().length;
+    const mappedPads = Object.keys(state.midi.padMap).length;
+    const selectedInst = getSelectedPlotInstrument();
+    const selectedName = selectedInst ? selectedInst.name : "--";
+    ctx.fillText(
+      "status: " + (state.powered ? "ON" : "OFF") + " | mode " + state.performanceMode.toUpperCase() + " | voices " + voices + "/" + maxVoices,
+      8,
+      76
+    );
+    ctx.fillText(
+      "maps: knobs " + mappedKnobs + " | pads " + mappedPads + " | target " + selectedName,
+      8,
+      91
+    );
+    laneAreaTop = 102;
+  }
+
+  drawLanes(ctx, width, height, laneAreaTop);
   requestAnimationFrame(drawVisualizer);
 }

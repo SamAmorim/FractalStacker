@@ -5,10 +5,23 @@ function layerEnergy(spec, energy) {
   return spec && energy >= spec.minEnergy;
 }
 
+export function grooveVoices(groove) {
+  return (groove && groove.voices) || groove || {};
+}
+
+export function grooveEnergy(ctx, inst) {
+  return clamp(ctx.energy * (0.45 + inst.density * 0.8), 0, 1);
+}
+
+export function hatPulses(hat, energy) {
+  return Math.min(16, hat.pulses + Math.round(Math.max(0, energy - 0.5) * 12));
+}
+
 export function getDrumHits(groove, ctx, inst, eqValue, rng) {
   const hits = [];
+  const voices = grooveVoices(groove);
   const s = ctx.stepInBar;
-  const energy = clamp(ctx.energy * (0.45 + inst.density * 0.8), 0, 1);
+  const energy = grooveEnergy(ctx, inst);
   const fillZone = ctx.isPhraseEnd && s >= 12 && energy > 0.3;
 
   if (ctx.phraseBar === 0 && s === 0 && ctx.sectionChanged && energy > 0.55) {
@@ -26,34 +39,34 @@ export function getDrumHits(groove, ctx, inst, eqValue, rng) {
     return hits;
   }
 
-  const kick = groove.kick;
+  const kick = voices.kick;
   if (layerEnergy(kick, energy) && euclidHit(kick.pulses, 16, kick.rotation, s)) {
     hits.push({ voice: "kick", velocity: kick.velocity * (s === 0 ? 1 : 0.92) });
   } else if (kick && energy > 0.5 && s % 4 === 3 && eqValue > 0.78 && rng() < groove.ghostChance * 2) {
     hits.push({ voice: "kick", velocity: kick.velocity * 0.55 });
   }
 
-  const snare = groove.snare;
+  const snare = voices.snare;
   if (layerEnergy(snare, energy) && snare.steps.indexOf(s) !== -1) {
     hits.push({ voice: "snare", velocity: snare.velocity });
   } else if (snare && snare.steps.length && energy > 0.45 && s % 2 === 1 && rng() < groove.ghostChance * eqValue) {
     hits.push({ voice: "snare", velocity: 0.18 + eqValue * 0.12 });
   }
 
-  const rim = groove.rim;
+  const rim = voices.rim;
   if (layerEnergy(rim, energy) && euclidHit(rim.pulses, 16, rim.rotation + ctx.phraseBar % 2, s)) {
     hits.push({ voice: "rim", velocity: rim.velocity * (0.8 + eqValue * 0.4) });
   }
 
-  const openHat = groove.openHat;
+  const openHat = voices.openHat;
   const openHit = layerEnergy(openHat, energy) && openHat.steps.indexOf(s) !== -1;
   if (openHit) {
     hits.push({ voice: "openHat", velocity: openHat.velocity });
   }
 
-  const hat = groove.hat;
+  const hat = voices.hat;
   if (!openHit && layerEnergy(hat, energy)) {
-    const pulses = Math.min(16, hat.pulses + Math.round(Math.max(0, energy - 0.5) * 12));
+    const pulses = hatPulses(hat, energy);
     if (euclidHit(pulses, 16, hat.rotation, s)) {
       const accent = s % 4 === 2 ? 1 : s % 2 === 0 ? 0.78 : 0.6;
       hits.push({ voice: "hat", velocity: hat.velocity * accent * (0.85 + eqValue * 0.3) });

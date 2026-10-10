@@ -1,6 +1,6 @@
 import { audio } from "../audio/engine.js";
 import { state } from "../core/state.js";
-import { applyFxParams } from "../effects/fx-chain.js";
+import { applyFxParams, applyFxSpaceMacro } from "../effects/fx-chain.js";
 import { getSceneBlendTimeConstant } from "../scenes/scenes.js";
 import { resetDodecaphonicSequence } from "../theory/dodecaphonic.js";
 import { renderEquationLiveInspector, renderEquationMonitor } from "./equation-panel.js";
@@ -89,6 +89,7 @@ export function bindGlobalControls() {
       state.monitor.trend = delta > 0 ? "Acelerando" : "Desacelerando";
       state.monitor.lastBpm = value;
     }
+    applyFxParams();
   });
 
   bindRangeControl("rootHz", "rootHzVal", function (value) {
@@ -184,11 +185,23 @@ export function bindFxControls() {
   const wahEnabled = document.getElementById("wahEnabled");
   const delayEnabled = document.getElementById("delayEnabled");
   const reverbEnabled = document.getElementById("reverbEnabled");
+  const delayPingPong = document.getElementById("delayPingPong");
+  const wahMode = document.getElementById("wahMode");
+  const delaySync = document.getElementById("delaySync");
 
   fxEnabled.checked = state.fx.enabled;
   wahEnabled.checked = state.fx.wahEnabled;
   delayEnabled.checked = state.fx.delayEnabled;
   reverbEnabled.checked = state.fx.reverbEnabled;
+  if (delayPingPong) {
+    delayPingPong.checked = Boolean(state.fx.delayPingPong);
+  }
+  if (wahMode) {
+    wahMode.value = state.fx.wahMode === "expression" ? "expression" : "lfo";
+  }
+  if (delaySync) {
+    delaySync.value = state.fx.delaySync || "off";
+  }
 
   fxEnabled.addEventListener("change", function (event) {
     state.fx.enabled = event.target.checked;
@@ -207,6 +220,24 @@ export function bindFxControls() {
     state.fx.reverbEnabled = event.target.checked;
     applyFxParams();
   });
+  if (delayPingPong) {
+    delayPingPong.addEventListener("change", function (event) {
+      state.fx.delayPingPong = event.target.checked;
+      applyFxParams();
+    });
+  }
+  if (wahMode) {
+    wahMode.addEventListener("change", function (event) {
+      state.fx.wahMode = event.target.value === "expression" ? "expression" : "lfo";
+      applyFxParams();
+    });
+  }
+  if (delaySync) {
+    delaySync.addEventListener("change", function (event) {
+      state.fx.delaySync = event.target.value || "off";
+      applyFxParams();
+    });
+  }
 
   bindRangeControl("wahRate", "wahRateVal", function (value) {
     return value.toFixed(1) + " Hz";
@@ -219,6 +250,13 @@ export function bindFxControls() {
     return value.toFixed(0) + " Hz";
   }, function (value) {
     state.fx.wahDepth = value;
+    applyFxParams();
+  });
+
+  bindRangeControl("wahPosition", "wahPositionVal", function (value) {
+    return value.toFixed(2);
+  }, function (value) {
+    state.fx.wahPosition = value;
     applyFxParams();
   });
 
@@ -248,5 +286,18 @@ export function bindFxControls() {
   }, function (value) {
     state.fx.reverbAmount = value;
     applyFxParams();
+  });
+
+  bindRangeControl("reverbSize", "reverbSizeVal", function (value) {
+    return value.toFixed(2);
+  }, function (value) {
+    state.fx.reverbSize = value;
+    applyFxParams();
+  });
+
+  bindRangeControl("fxSpace", "fxSpaceVal", function (value) {
+    return value.toFixed(2);
+  }, function (value) {
+    applyFxSpaceMacro(value);
   });
 }

@@ -33,8 +33,45 @@
     position: static;
     max-height: none;
     overflow: visible;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: start;
     padding-right: 0;
+  }
+
+  .studio-nav {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(9, auto);
+    justify-content: start;
+  }
+
+  body:not(.graphs-only) .workspace {
+    display: contents;
+  }
+
+  body:not(.graphs-only) .sidebar {
+    order: 1;
+  }
+
+  body:not(.graphs-only) .rack-panel {
+    order: 2;
+  }
+
+  body:not(.graphs-only) .equation-panel {
+    order: 3;
+  }
+
+  body:not(.graphs-only) .lab-panel {
+    order: 4;
+  }
+
+  body:not(.graphs-only) .workflow-panel {
+    order: 5;
+  }
+
+  .sidebar-zone + .sidebar-zone {
+    margin-top: 0;
+    padding-top: 8px;
+    border-top: 0;
   }
 
   .workflow-grid {
@@ -45,22 +82,6 @@
   .workflow-step:nth-child(3) {
     padding-left: 4px;
     border-left: 0;
-  }
-
-  .graphs-only .visual-panel {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(150px, 0.6fr) minmax(340px, 1fr) minmax(170px, 0.9fr) minmax(110px, 0.5fr) minmax(110px, 0.5fr);
-    grid-template-areas:
-      "hud"
-      "rack"
-      "cart"
-      "activity"
-      "event"
-      "midi";
-  }
-
-  .graphs-only .hud-top-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -106,6 +127,10 @@
 
   .graph-toolbar,
   .cartesian-grid,
+  .midi-toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .log-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -140,9 +165,12 @@
     letter-spacing: 0.1em;
   }
 
-  .graph-focus-btn {
-    right: 12px;
-    bottom: 12px;
+  .demo-chrome {
+    padding: 8px 12px;
+  }
+
+  .studio-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

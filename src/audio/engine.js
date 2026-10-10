@@ -1,7 +1,7 @@
 import { createNoiseBuffer } from "./buffers.js";
 import { ensureInstrumentBus, updateInstrumentMix } from "./buses.js";
 import { state } from "../core/state.js";
-import { applyFxParams, createFxChain } from "../effects/fx-chain.js";
+import { applyFxParams, createFxChain, createSendReverb, silenceAllFx } from "../effects/fx-chain.js";
 
 export const audio = {
   ready: false,
@@ -11,6 +11,7 @@ export const audio = {
   noiseBuffer: null,
   masterInput: null,
   fxChain: null,
+  sendReverb: null,
   compressor: null,
   masterGain: null,
   meterAnalyser: null,
@@ -28,12 +29,16 @@ export function ensureAudio() {
     return Promise.reject(new Error("Web Audio API unavailable"));
   }
 
-  audio.ctx = new AudioCtx();
+  audio.ctx = new AudioCtx({ latencyHint: "balanced" });
   audio.instrumentBuses = {};
   audio.masterInput = audio.ctx.createGain();
   audio.masterInput.gain.value = 1;
 
   audio.fxChain = createFxChain(audio.ctx, state.fx);
+  audio.sendReverb = createSendReverb(audio.ctx);
+  audio.sendReverb.dry.gain.value = 0;
+  audio.sendReverb.wet.gain.value = 1;
+  audio.sendReverb.output.connect(audio.masterInput);
 
   audio.compressor = audio.ctx.createDynamicsCompressor();
   audio.compressor.threshold.value = -14;
@@ -76,14 +81,7 @@ export function hardSilence() {
   const now = audio.ctx.currentTime;
   audio.masterGain.gain.cancelScheduledValues(now);
   audio.masterGain.gain.setValueAtTime(0, now);
-
-  const chain = audio.fxChain;
-  if (chain && chain.delay) {
-    chain.delay.feedback.gain.cancelScheduledValues(now);
-    chain.delay.feedback.gain.setValueAtTime(0, now);
-    chain.delay.wet.gain.cancelScheduledValues(now);
-    chain.delay.wet.gain.setValueAtTime(0, now);
-  }
+  silenceAllFx();
 }
 
 export function restoreMasterLevel() {

@@ -3,7 +3,7 @@
   top: 0;
   z-index: 50;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
   align-items: center;
   gap: 10px 18px;
   min-height: var(--topbar-h);
@@ -83,8 +83,38 @@
 }
 
 .engine-status::before {
-  content: "$ ";
+  content: "$";
+  margin-right: 10px;
   color: var(--accent);
+}
+
+.st-item {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.st-item + .st-item {
+  margin-left: 14px;
+}
+
+.st-k {
+  color: var(--fg-mute);
+}
+
+.st-v {
+  color: var(--fg);
+}
+
+.st-mute .st-v {
+  color: var(--fg-dim);
+}
+
+.st-ok .st-v {
+  color: var(--ok);
+}
+
+.st-warn .st-v {
+  color: var(--warn);
 }
 
 .header-actions {

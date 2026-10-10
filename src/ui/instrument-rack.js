@@ -25,6 +25,7 @@ function getPadMappingForInstrument(instId) {
 }
 
 function instrumentControlBlock(inst) {
+  const fx = inst.fx || {};
   const eqOptions = Object.keys(EQUATIONS)
     .map(function (key) {
       const selected = inst.equation === key ? " selected" : "";
@@ -41,9 +42,19 @@ function instrumentControlBlock(inst) {
   const harmonicTiltId = instrumentControlId(inst.id, "harmonicTilt");
   const detuneId = instrumentControlId(inst.id, "detune");
   const octaveId = instrumentControlId(inst.id, "octave");
+  const delayEnabledId = instrumentControlId(inst.id, "delayEnabled");
+  const delaySyncId = instrumentControlId(inst.id, "delaySync");
+  const delayPingPongId = instrumentControlId(inst.id, "delayPingPong");
+  const delayTimeId = instrumentControlId(inst.id, "delayTime");
+  const delayFeedbackId = instrumentControlId(inst.id, "delayFeedback");
+  const delayMixId = instrumentControlId(inst.id, "delayMix");
+  const reverbEnabledId = instrumentControlId(inst.id, "reverbEnabled");
+  const reverbAmountId = instrumentControlId(inst.id, "reverbAmount");
+  const reverbSizeId = instrumentControlId(inst.id, "reverbSize");
+  const sendAmountId = instrumentControlId(inst.id, "sendAmount");
   const padLearnActive = state.midi.padLearnInstrumentId === inst.id;
   const padMapped = getPadMappingForInstrument(inst.id);
-  const padText = padMapped ? "pad note " + padMapped : "pad --";
+  const padText = padMapped ? "pad note " + padMapped + " (toggle)" : "pad --";
 
   function rangeInput(id, field, min, max, step, value, label) {
     const fill = (clamp((value - min) / (max - min), 0, 1) * 100).toFixed(1);
@@ -87,6 +98,29 @@ function instrumentControlBlock(inst) {
     rangeInput(detuneId, "detune", -60, 60, 1, inst.detune) +
     rangeInput(octaveId, "octave", -3, 3, 1, inst.octave, inst.name + " octave") +
     "</div>" +
+    "<div class=\"inst-fx span-2\">" +
+    "<div class=\"inst-fx-title\">FX da camada</div>" +
+    "<div class=\"inst-fx-grid\">" +
+    "<label class=\"inst-toggle\"><input id=\"" + delayEnabledId + "\" data-midi-map=\"" + delayEnabledId + "\" type=\"checkbox\" data-field=\"delayEnabled\"" + (fx.delayEnabled ? " checked" : "") + "> Delay</label>" +
+    "<div class=\"control\">" +
+    "<label for=\"" + delaySyncId + "\">Dly Sync</label>" +
+    "<select id=\"" + delaySyncId + "\" data-midi-map=\"" + delaySyncId + "\" data-field=\"delaySync\">" +
+    "<option value=\"off\"" + ((fx.delaySync || "off") === "off" ? " selected" : "") + ">Free</option>" +
+    "<option value=\"1/4\"" + (fx.delaySync === "1/4" ? " selected" : "") + ">1/4</option>" +
+    "<option value=\"1/8\"" + (fx.delaySync === "1/8" ? " selected" : "") + ">1/8</option>" +
+    "<option value=\"1/8d\"" + (fx.delaySync === "1/8d" ? " selected" : "") + ">1/8d</option>" +
+    "<option value=\"1/16\"" + (fx.delaySync === "1/16" ? " selected" : "") + ">1/16</option>" +
+    "</select></div>" +
+    "<label class=\"inst-toggle\"><input id=\"" + delayPingPongId + "\" data-midi-map=\"" + delayPingPongId + "\" type=\"checkbox\" data-field=\"delayPingPong\"" + (fx.delayPingPong ? " checked" : "") + "> Ping-pong</label>" +
+    rangeControl(delayTimeId, "delayTime", "Dly Time", Number(fx.delayTime || 0).toFixed(2) + " s", 0, 1.5, 0.01, fx.delayTime || 0) +
+    rangeControl(delayFeedbackId, "delayFeedback", "Dly Fb", Number(fx.delayFeedback || 0).toFixed(2), 0, 0.95, 0.01, fx.delayFeedback || 0) +
+    rangeControl(delayMixId, "delayMix", "Dly Mix", Number(fx.delayMix || 0).toFixed(2), 0, 1, 0.01, fx.delayMix || 0) +
+    "<label class=\"inst-toggle\"><input id=\"" + reverbEnabledId + "\" data-midi-map=\"" + reverbEnabledId + "\" type=\"checkbox\" data-field=\"reverbEnabled\"" + (fx.reverbEnabled ? " checked" : "") + "> Reverb</label>" +
+    rangeControl(reverbAmountId, "reverbAmount", "Rev Amt", Number(fx.reverbAmount || 0).toFixed(2), 0, 1, 0.01, fx.reverbAmount || 0) +
+    rangeControl(reverbSizeId, "reverbSize", "Rev Size", Number(fx.reverbSize || 0.4).toFixed(2), 0, 1, 0.01, fx.reverbSize || 0.4) +
+    rangeControl(sendAmountId, "sendAmount", "Send Rev", Number(fx.sendAmount || 0).toFixed(2), 0, 1, 0.01, fx.sendAmount || 0) +
+    "</div>" +
+    "</div>" +
     "</div>" +
     "<footer class=\"inst-foot\">" +
     "<button type=\"button\" class=\"pad-learn-btn" + (padLearnActive ? " on" : "") + "\" data-pad-learn=\"" + inst.id + "\">Assign Pad</button>" +
@@ -95,6 +129,19 @@ function instrumentControlBlock(inst) {
     "</article>"
   );
 }
+
+const FX_FIELDS = {
+  delayEnabled: true,
+  delaySync: true,
+  delayPingPong: true,
+  delayTime: true,
+  delayFeedback: true,
+  delayMix: true,
+  reverbEnabled: true,
+  reverbAmount: true,
+  reverbSize: true,
+  sendAmount: true
+};
 
 export function renderInstrumentRack() {
   dom.instrumentRack.innerHTML = state.instruments.map(instrumentControlBlock).join("");
@@ -105,6 +152,9 @@ export function renderInstrumentRack() {
     });
     if (!inst) {
       return;
+    }
+    if (!inst.fx) {
+      inst.fx = {};
     }
 
     Array.from(row.querySelectorAll("[data-field]")).forEach(function (input) {
@@ -118,6 +168,12 @@ export function renderInstrumentRack() {
           inst.octave = Number(event.target.value);
         } else if (field === "detune") {
           inst.detune = Number(event.target.value);
+        } else if (field === "delayEnabled" || field === "reverbEnabled" || field === "delayPingPong") {
+          inst.fx[field] = event.target.checked;
+        } else if (field === "delaySync") {
+          inst.fx.delaySync = event.target.value || "off";
+        } else if (FX_FIELDS[field]) {
+          inst.fx[field] = Number(event.target.value);
         } else if (
           field === "volume" ||
           field === "density" ||
@@ -137,7 +193,11 @@ export function renderInstrumentRack() {
 
       if (input.type === "checkbox") {
         input.addEventListener("change", function (event) {
-          inst.enabled = event.target.checked;
+          if (field === "enabled") {
+            inst.enabled = event.target.checked;
+          } else if (field === "delayEnabled" || field === "reverbEnabled") {
+            inst.fx[field] = event.target.checked;
+          }
           updateInstrumentMix(inst);
           renderEquationMonitor();
           renderEquationLiveInspector();
@@ -165,7 +225,7 @@ export function renderInstrumentRack() {
         setMidiLearnArmed(false);
         renderInstrumentRack();
         renderMidiMappingStatus();
-        appendLog("pad learn -> " + inst.name + " (toque um pad MIDI)");
+        appendLog("pad learn -> " + inst.name + " (toque um pad para ligar/desligar)");
       });
     }
   });
@@ -176,28 +236,26 @@ export function renderInstrumentRack() {
 }
 
 function updateInstrumentRowValues(row, inst) {
-  const volumeValue = row.querySelector("[data-value='volume']");
-  const panValue = row.querySelector("[data-value='pan']");
-  const densityValue = row.querySelector("[data-value='density']");
-  const harmonicMixValue = row.querySelector("[data-value='harmonicMix']");
-  const harmonicTiltValue = row.querySelector("[data-value='harmonicTilt']");
-  const detuneValue = row.querySelector("[data-value='detune']");
-  if (volumeValue) {
-    volumeValue.textContent = inst.volume.toFixed(2);
-  }
-  if (panValue) {
-    panValue.textContent = inst.pan.toFixed(2);
-  }
-  if (densityValue) {
-    densityValue.textContent = inst.density.toFixed(2);
-  }
-  if (harmonicMixValue) {
-    harmonicMixValue.textContent = inst.harmonicMix.toFixed(2);
-  }
-  if (harmonicTiltValue) {
-    harmonicTiltValue.textContent = inst.harmonicTilt.toFixed(2);
-  }
-  if (detuneValue) {
-    detuneValue.textContent = inst.detune.toFixed(0) + " ct, oct " + inst.octave;
-  }
+  const fx = inst.fx || {};
+  const setters = {
+    volume: inst.volume.toFixed(2),
+    pan: inst.pan.toFixed(2),
+    density: inst.density.toFixed(2),
+    harmonicMix: inst.harmonicMix.toFixed(2),
+    harmonicTilt: inst.harmonicTilt.toFixed(2),
+    detune: inst.detune.toFixed(0) + " ct, oct " + inst.octave,
+    delayTime: Number(fx.delayTime || 0).toFixed(2) + " s",
+    delayFeedback: Number(fx.delayFeedback || 0).toFixed(2),
+    delayMix: Number(fx.delayMix || 0).toFixed(2),
+    reverbAmount: Number(fx.reverbAmount || 0).toFixed(2),
+    reverbSize: Number(fx.reverbSize || 0.4).toFixed(2),
+    sendAmount: Number(fx.sendAmount || 0).toFixed(2)
+  };
+
+  Object.keys(setters).forEach(function (key) {
+    const el = row.querySelector("[data-value='" + key + "']");
+    if (el) {
+      el.textContent = setters[key];
+    }
+  });
 }

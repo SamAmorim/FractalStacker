@@ -1,0 +1,218 @@
+/* Studio zones — organization & navigation */
+
+.studio-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px 4px;
+  padding: 4px 2px 10px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg);
+}
+
+.studio-nav a {
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--fg-mute);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.studio-nav a .idx {
+  margin-right: 5px;
+  color: var(--fg-mute);
+  opacity: 0.7;
+}
+
+.studio-nav a.in-view {
+  color: var(--fg);
+}
+
+.studio-nav a.in-view .idx {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.studio-nav a:hover,
+.studio-nav a:focus-visible {
+  border-color: var(--line-strong);
+  color: var(--fg);
+  outline: none;
+}
+
+.sidebar .panel,
+.workspace > .panel {
+  scroll-margin-top: calc(var(--topbar-h) + 24px);
+}
+
+.sidebar .panel {
+  scroll-margin-top: 56px;
+}
+
+.sidebar-zone {
+  display: grid;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.sidebar-zone + .sidebar-zone {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.sidebar-zone::before {
+  content: attr(data-zone-label);
+  color: var(--accent);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.stage-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.stage-head .panel-title {
+  margin: 0;
+}
+
+.stage-hint {
+  margin: 0;
+  max-width: 36rem;
+}
+
+.panel-hint kbd {
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--canvas-bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.85em;
+}
+
+.stage-tools {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 0 10px 10px;
+  background: transparent;
+}
+
+.stage-tools > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 8px 0;
+  color: var(--fg-mute);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stage-tools > summary::-webkit-details-marker {
+  display: none;
+}
+
+.stage-tools > summary::before {
+  content: "+ ";
+  color: var(--accent);
+}
+
+.stage-tools > summary::after {
+  content: " · alvo do plot, auto scan, sensibilidade phi, ritmo do demo";
+  color: var(--fg-mute);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  opacity: 0.8;
+}
+
+.stage-tools > summary:hover {
+  color: var(--fg);
+}
+
+.stage-tools[open] > summary {
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+
+.stage-tools[open] > summary::before {
+  content: "− ";
+}
+
+.stage-tools[open] > summary::after {
+  content: none;
+}
+
+.stage-tools .graph-toolbar {
+  margin-top: 4px;
+}
+
+.transport-cluster .btn-demo.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.fx-recall-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.btn-danger:hover,
+.btn-danger:focus-visible {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.lab-panel .log-grid {
+  margin-top: 8px;
+}
+
+.workflow-panel {
+  opacity: 0.92;
+}
+
+.demo-chrome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  pointer-events: none;
+}
+
+.demo-chrome[hidden] {
+  display: none !important;
+}
+
+.demo-chrome-actions {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* Wrappers are transparent in studio; demo CSS promotes them to grid items */
+.demo-scope {
+  display: contents;
+}
+
+.demo-scope-label,
+.demo-enter-flash,
+.demo-rec-dot {
+  display: none;
+}

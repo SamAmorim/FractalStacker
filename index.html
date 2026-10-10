@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="styles/controls.css">
   <link rel="stylesheet" href="styles/layout/topbar.css">
   <link rel="stylesheet" href="styles/layout/shell.css">
+  <link rel="stylesheet" href="styles/layout/studio.css">
   <link rel="stylesheet" href="styles/components/panel.css">
   <link rel="stylesheet" href="styles/components/form.css">
   <link rel="stylesheet" href="styles/components/scenes.css">
@@ -28,9 +29,11 @@
   <link rel="stylesheet" href="styles/components/visualizer.css">
   <link rel="stylesheet" href="styles/components/hud.css">
   <link rel="stylesheet" href="styles/components/logs.css">
+  <link rel="stylesheet" href="styles/components/midi-panel.css">
   <link rel="stylesheet" href="styles/components/instrument-rack.css">
   <link rel="stylesheet" href="styles/components/equations.css">
   <link rel="stylesheet" href="styles/layout/footer.css">
+  <link rel="stylesheet" href="styles/components/demo-stage.css">
   <link rel="stylesheet" href="styles/modes/graphs-only.css">
   <link rel="stylesheet" href="styles/responsive.css">
 </head>
@@ -41,18 +44,17 @@
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">&phi;</span>
       <div>
-        <h1 class="title">Fractal<span class="sep">//</span>Live Synth Studio<span class="cursor" aria-hidden="true">_</span></h1>
-        <p class="subtitle">digital twin for carputer</p>
+        <h1 class="title">Fractal<span class="sep">//</span>Live<span class="cursor" aria-hidden="true">_</span></h1>
+        <p class="subtitle">synth studio · carputer twin</p>
       </div>
     </div>
 
-    <p class="engine-status" id="engineStatus" role="status">Audio engine idle</p>
-
-    <div class="header-actions">
+    <div class="header-actions transport-cluster">
       <button id="powerBtn" class="led-btn btn-power" type="button" aria-pressed="false">Power On</button>
+      <button id="graphFocusBtn" class="led-btn btn-demo" type="button" aria-pressed="false">Modo Demo</button>
+      <span class="action-divider" aria-hidden="true"></span>
       <button id="midiBtn" class="led-btn" type="button" aria-pressed="false">MIDI: Disconnected</button>
-      <button id="midiLearnBtn" class="led-btn" type="button" aria-pressed="false">MIDI Learn: Off</button>
-      <button id="midiClearBtn" class="btn-ghost" type="button">Clear MIDI Map</button>
+      <button id="midiLearnBtn" class="led-btn" type="button" aria-pressed="false" title="Arma o MIDI Learn: clique um controle e mexa no controlador (Esc cancela)">Learn</button>
       <span class="action-divider" aria-hidden="true"></span>
       <label class="theme-picker">
         <span>tema</span>
@@ -71,12 +73,28 @@
         </select>
       </label>
     </div>
+
+    <p class="engine-status" id="engineStatus" role="status">Audio engine idle</p>
   </header>
 
   <main class="shell">
-    <aside class="sidebar" aria-label="Controles globais">
-      <section class="panel global-panel" id="global">
-        <h2 class="panel-title"><span class="idx">01</span>Global Context</h2>
+    <aside class="sidebar" aria-label="Controles do studio">
+
+      <nav class="studio-nav" aria-label="Secoes do studio">
+        <a href="#visualizer"><span class="idx">01</span>Stage</a>
+        <a href="#global"><span class="idx">02</span>Global</a>
+        <a href="#compose"><span class="idx">03</span>Compose</a>
+        <a href="#scenes"><span class="idx">04</span>Scenes</a>
+        <a href="#envelope"><span class="idx">05</span>Voice</a>
+        <a href="#fx"><span class="idx">06</span>FX</a>
+        <a href="#rack"><span class="idx">07</span>Rack</a>
+        <a href="#equations"><span class="idx">08</span>Equations</a>
+        <a href="#lab"><span class="idx">09</span>Lab</a>
+      </nav>
+
+      <div class="sidebar-zone" data-zone-label="Som">
+        <section class="panel global-panel" id="global" data-zone="sound">
+        <h2 class="panel-title"><span class="idx">02</span>Global</h2>
         <div class="controls-grid">
           <div class="control">
             <label for="bpm">BPM <span class="value" id="bpmVal">112</span></label>
@@ -140,9 +158,10 @@
           </div>
         </div>
       </section>
-
-      <section class="panel compose-panel" id="compose">
-        <h2 class="panel-title"><span class="idx">02</span>Composicao</h2>
+      </div>
+      <div class="sidebar-zone" data-zone-label="Musica">
+        <section class="panel compose-panel" id="compose" data-zone="music">
+        <h2 class="panel-title"><span class="idx">03</span>Compose</h2>
         <div class="panel-tools switch-row">
           <input id="autoForm" type="checkbox" checked>
           <label for="autoForm">Forma auto</label>
@@ -219,31 +238,8 @@
           <button id="reharmonizeBtn" type="button">Nova semente</button>
         </div>
       </section>
-
-      <section class="panel envelope-panel" id="envelope">
-        <h2 class="panel-title"><span class="idx">03</span>Envelope ADSR</h2>
-        <div class="controls-grid">
-          <div class="control">
-            <label for="envAttack">Attack <span class="value" id="envAttackVal">0.01 s</span></label>
-            <input id="envAttack" type="range" min="0.001" max="2" step="0.001" value="0.01">
-          </div>
-          <div class="control">
-            <label for="envDecay">Decay <span class="value" id="envDecayVal">0.18 s</span></label>
-            <input id="envDecay" type="range" min="0.01" max="2" step="0.01" value="0.18">
-          </div>
-          <div class="control">
-            <label for="envSustain">Sustain <span class="value" id="envSustainVal">0.56</span></label>
-            <input id="envSustain" type="range" min="0.05" max="1" step="0.01" value="0.56">
-          </div>
-          <div class="control">
-            <label for="envRelease">Release <span class="value" id="envReleaseVal">0.26 s</span></label>
-            <input id="envRelease" type="range" min="0.02" max="3" step="0.01" value="0.26">
-          </div>
-        </div>
-      </section>
-
-      <section class="panel scene-panel" id="scenes">
-        <h2 class="panel-title"><span class="idx">04</span>Scene Morph</h2>
+        <section class="panel scene-panel" id="scenes" data-zone="live">
+        <h2 class="panel-title"><span class="idx">04</span>Scenes</h2>
         <div class="controls-grid">
           <div class="control">
             <label for="sceneSlotSelect">Slot <span class="value" id="sceneSlotVal">A</span></label>
@@ -274,14 +270,40 @@
         </div>
         <div class="scene-status" id="sceneStatus" role="status">Scenes prontas para snapshot JSON.</div>
       </section>
-
-      <section class="panel fx-panel" id="fx">
-        <h2 class="panel-title"><span class="idx">05</span>Bus FX Preview</h2>
+      </div>
+      <div class="sidebar-zone" data-zone-label="Timbre">
+        <section class="panel envelope-panel" id="envelope" data-zone="voice">
+        <h2 class="panel-title"><span class="idx">05</span>Voice · ADSR</h2>
+        <div class="controls-grid">
+          <div class="control">
+            <label for="envAttack">Attack <span class="value" id="envAttackVal">0.01 s</span></label>
+            <input id="envAttack" type="range" min="0.001" max="2" step="0.001" value="0.01">
+          </div>
+          <div class="control">
+            <label for="envDecay">Decay <span class="value" id="envDecayVal">0.18 s</span></label>
+            <input id="envDecay" type="range" min="0.01" max="2" step="0.01" value="0.18">
+          </div>
+          <div class="control">
+            <label for="envSustain">Sustain <span class="value" id="envSustainVal">0.56</span></label>
+            <input id="envSustain" type="range" min="0.05" max="1" step="0.01" value="0.56">
+          </div>
+          <div class="control">
+            <label for="envRelease">Release <span class="value" id="envReleaseVal">0.26 s</span></label>
+            <input id="envRelease" type="range" min="0.02" max="3" step="0.01" value="0.26">
+          </div>
+        </div>
+      </section>
+        <section class="panel fx-panel" id="fx" data-zone="fx">
+        <h2 class="panel-title"><span class="idx">06</span>Master FX</h2>
         <div class="panel-tools switch-row">
           <input id="fxEnabled" type="checkbox">
           <label for="fxEnabled">Enable</label>
         </div>
-        <p class="panel-hint">Preview interno. No rig real, use a pedalboard externa (P10).</p>
+        <p class="panel-hint">Bus mestre + send reverb compartilhado. Inserts por camada no Instrument Stack. Macro Space (MIDI CC20) controla delay+reverb juntos.</p>
+        <div class="control">
+          <label for="fxSpace">Space macro <span class="value" id="fxSpaceVal">0.00</span></label>
+          <input id="fxSpace" type="range" min="0" max="1" step="0.01" value="0">
+        </div>
         <div class="fx-grid">
           <div class="fx-card">
             <div class="switch-row fx-head">
@@ -289,10 +311,17 @@
               <label for="wahEnabled">Wah Wah</label>
             </div>
             <div class="control">
-              <label for="wahRate">Rate <span class="value" id="wahRateVal">1.6 Hz</span></label>
+              <label for="wahMode">Mode</label>
+              <select id="wahMode">
+                <option value="lfo" selected>LFO auto</option>
+                <option value="expression">Expression</option>
+              </select>
+              <label class="control-gap" for="wahRate">Rate <span class="value" id="wahRateVal">1.6 Hz</span></label>
               <input id="wahRate" type="range" min="0.1" max="8" step="0.1" value="1.6">
               <label class="control-gap" for="wahDepth">Depth <span class="value" id="wahDepthVal">820 Hz</span></label>
               <input id="wahDepth" type="range" min="120" max="2800" step="1" value="820">
+              <label class="control-gap" for="wahPosition">Expression <span class="value" id="wahPositionVal">0.45</span></label>
+              <input id="wahPosition" type="range" min="0" max="1" step="0.01" value="0.45">
             </div>
           </div>
 
@@ -302,12 +331,21 @@
               <label for="delayEnabled">Delay</label>
             </div>
             <div class="control">
-              <label for="delayTime">Time <span class="value" id="delayTimeVal">0.29 s</span></label>
+              <label for="delaySync">Sync</label>
+              <select id="delaySync">
+                <option value="off" selected>Free (ms)</option>
+                <option value="1/4">1/4</option>
+                <option value="1/8">1/8</option>
+                <option value="1/8d">1/8 dotted</option>
+                <option value="1/16">1/16</option>
+              </select>
+              <label class="control-gap" for="delayTime">Time <span class="value" id="delayTimeVal">0.29 s</span></label>
               <input id="delayTime" type="range" min="0" max="1.5" step="0.01" value="0.29">
               <label class="control-gap" for="delayFeedback">Feedback <span class="value" id="delayFeedbackVal">0.34</span></label>
               <input id="delayFeedback" type="range" min="0" max="0.95" step="0.01" value="0.34">
               <label class="control-gap" for="delayMix">Mix <span class="value" id="delayMixVal">0.24</span></label>
               <input id="delayMix" type="range" min="0" max="1" step="0.01" value="0.24">
+              <label class="inst-toggle control-gap"><input id="delayPingPong" type="checkbox"> Ping-pong</label>
             </div>
           </div>
 
@@ -319,43 +357,48 @@
             <div class="control">
               <label for="reverbAmount">Amount <span class="value" id="reverbAmountVal">0.20</span></label>
               <input id="reverbAmount" type="range" min="0" max="1" step="0.01" value="0.20">
+              <label class="control-gap" for="reverbSize">Size <span class="value" id="reverbSizeVal">0.55</span></label>
+              <input id="reverbSize" type="range" min="0" max="1" step="0.01" value="0.55">
             </div>
           </div>
         </div>
+        <div class="fx-recall-row">
+          <button id="sceneRecallFxBtn" type="button" class="btn-ghost">Recall FX only</button>
+        </div>
       </section>
+      </div>
+
     </aside>
 
     <div class="workspace">
-      <section class="panel workflow-panel" id="workflow">
-        <h2 class="panel-title"><span class="idx">00</span>Workflow</h2>
-        <ol class="workflow-grid">
-          <li class="workflow-step">
-            <span class="workflow-num">01</span>
-            <h3>Esculpir Sons</h3>
-            <p>Volume, pan, harmonic mix/tilt, ADSR e detune de cada camada.</p>
-          </li>
-          <li class="workflow-step">
-            <span class="workflow-num">02</span>
-            <h3>Mesclar Sons</h3>
-            <p>Empilhe instrumentos, balanceie o mix e envie ao bus mestre.</p>
-          </li>
-          <li class="workflow-step">
-            <span class="workflow-num">03</span>
-            <h3>Harmonizar</h3>
-            <p>Escala, ritmo, densidade, swing e microtonalidade.</p>
-          </li>
-          <li class="workflow-step">
-            <span class="workflow-num">04</span>
-            <h3>Ver e Performar</h3>
-            <p>Leia graficos, compasso, notas e mix enquanto controla via MIDI.</p>
-          </li>
-        </ol>
+      <section class="demo-stage" id="demoStage" aria-label="Demo guiado">
+        <header class="ds-head">
+          <span class="ds-idx" id="dsIdx">01 / 07</span>
+          <h2 class="ds-title" id="dsTitle"></h2>
+          <div class="ds-change" id="dsChange" hidden>
+            <span class="ds-change-tag">MIDI</span>
+            <span class="ds-change-k" id="dsChangeKey"></span>
+            <span class="ds-change-v" id="dsChangeValue"></span>
+          </div>
+        </header>
+        <div class="ds-body">
+          <canvas class="scope ds-canvas" id="dsCanvas"></canvas>
+          <aside class="ds-side">
+            <div class="ds-formula" id="dsFormula"></div>
+            <dl class="ds-readout" id="dsReadout"></dl>
+          </aside>
+        </div>
       </section>
 
-      <section class="panel visual-panel" id="visualizer" tabindex="-1">
-        <h2 class="panel-title"><span class="idx">06</span>Live Result Visualizer</h2>
+<section class="panel visual-panel" id="visualizer" data-zone="stage" tabindex="-1">
+        <div class="stage-head">
+          <h2 class="panel-title"><span class="idx">01</span>Stage</h2>
+          <p class="panel-hint stage-hint">HUD + graficos ao vivo. Use <kbd>G</kbd> para Modo Demo (gravação).</p>
+        </div>
 
-        <div class="graph-toolbar">
+        <details class="stage-tools">
+          <summary>Plot tools</summary>
+          <div class="graph-toolbar">
           <div class="tool-group">
             <div class="control span-2">
               <label for="eqPlotInstrument">Cartesian Target <span class="value" id="eqPlotInstrumentVal">Rhythm</span></label>
@@ -393,17 +436,29 @@
               </select>
             </div>
           </div>
+          <div class="tool-group">
+            <div class="control span-2">
+              <label for="demoBarsPerSlide">Demo: trocar slide</label>
+              <select id="demoBarsPerSlide">
+                <option value="2">a cada 2 compassos</option>
+                <option value="4" selected>a cada 4 compassos</option>
+                <option value="8">a cada 8 compassos</option>
+                <option value="0">manual (setas)</option>
+              </select>
+            </div>
+          </div>
         </div>
+        </details>
 
         <section class="performance-hud" id="performanceHud" aria-label="Performance HUD">
           <div class="hud-top-grid">
             <article class="hud-card">
               <span class="hud-label">Tempo</span>
-              <span class="hud-value" id="hudTempo">112 BPM | 4/4</span>
+              <span class="hud-value" id="hudTempo">112 BPM · 4/4</span>
             </article>
             <article class="hud-card">
-              <span class="hud-label">Compasso / Beat</span>
-              <span class="hud-value" id="hudBarBeat">1 | 1/4 | step 1/16</span>
+              <span class="hud-label">Compasso · Beat · Step</span>
+              <span class="hud-value" id="hudBarBeat">1 · 1/4 · 1/16</span>
             </article>
             <article class="hud-card">
               <span class="hud-label">Harmonia</span>
@@ -449,21 +504,49 @@
           <div class="hud-advice" id="hudAdvice">Mix equilibrado.</div>
         </section>
 
-        <canvas class="scope channel-rack-scope" id="channelRackCanvas"></canvas>
+        <div class="demo-scope demo-scope--rack" data-demo-frame="rack">
+          <canvas class="scope channel-rack-scope" id="channelRackCanvas"></canvas>
+        </div>
 
         <div class="cartesian-grid">
-          <article class="graph-card">
-            <h3 class="graph-title">Plano Cartesiano :: Equacao</h3>
+          <article class="graph-card" data-demo-frame="eq">
+            <h3 class="graph-title">Equacao</h3>
             <canvas class="scope graph-scope" id="equationCartesianCanvas"></canvas>
           </article>
-          <article class="graph-card">
-            <h3 class="graph-title">Plano Cartesiano :: Harmonic Sculpt</h3>
+          <article class="graph-card" data-demo-frame="harm">
+            <h3 class="graph-title">Harmonic</h3>
             <canvas class="scope graph-scope" id="harmonicCanvas"></canvas>
           </article>
         </div>
 
-        <canvas class="scope" id="activityCanvas"></canvas>
+        <div class="demo-scope demo-scope--hero" data-demo-frame="activity">
+          <div class="demo-scope-label" aria-hidden="true">LIVE SIGNAL</div>
+          <canvas class="scope" id="activityCanvas"></canvas>
+        </div>
 
+        
+      </section>
+
+<section class="panel rack-panel" id="rack" data-zone="rack">
+        <h2 class="panel-title"><span class="idx">07</span>Instrument Rack</h2>
+        <p class="panel-hint">Cada camada tem equação, mix e FX próprios. Para mapear: <kbd>Learn</kbd> no topo, clique o controle, mexa no controlador. <em>Assign Pad</em> liga/desliga a camada por um pad.</p>
+        <div class="instrument-list" id="instrumentRack"></div>
+      </section>
+
+<section class="panel equation-panel" id="equations" data-zone="equations">
+        <h2 class="panel-title"><span class="idx">08</span>Equations</h2>
+        <h3 class="panel-subhead">Biblioteca</h3>
+        <div class="equation-library" id="equationLibrary"></div>
+        <h3 class="panel-subhead">Current Equation Context</h3>
+        <div class="eq-monitor" id="equationMonitor"></div>
+        <h3 class="panel-subhead">Runtime Equation Inspector</h3>
+        <div class="eq-live-grid" id="equationLiveGrid"></div>
+      </section>
+
+
+      <section class="panel lab-panel" id="lab" data-zone="lab">
+        <h2 class="panel-title"><span class="idx">09</span>Lab · MIDI & Log</h2>
+        <p class="panel-hint">Mapeamentos MIDI, device e event log. No Modo Demo estes painéis ficam ocultos (tecla <kbd>D</kbd> revela tech overlay).</p>
         <div class="log-grid">
           <div class="log-card log-card--event">
             <h3 class="log-title">Event Log</h3>
@@ -471,25 +554,72 @@
           </div>
           <div class="log-card log-card--midi">
             <h3 class="log-title">MIDI Map</h3>
-            <pre class="event-log midi-map-log" id="midiMapStatus"></pre>
+            <div class="midi-panel" id="midiPanel">
+              <div class="midi-toolbar">
+                <label class="midi-field">
+                  <span>Input</span>
+                  <select id="midiInputSelect" disabled>
+                    <option value="all">Todos os inputs</option>
+                  </select>
+                </label>
+                <label class="midi-field">
+                  <span>Out</span>
+                  <select id="midiOutputSelect" disabled>
+                    <option value="none">Sem MIDI Out</option>
+                  </select>
+                </label>
+                <label class="midi-field">
+                  <span>Canal</span>
+                  <select id="midiChannelSelect">
+                    <option value="-1">Omni</option>
+                  </select>
+                </label>
+              </div>
+              <div class="midi-toggles">
+                <label class="midi-check"><input id="midiDefaultMapToggle" type="checkbox" checked> Default CC</label>
+                <label class="midi-check"><input id="midiFactoryToggle" type="checkbox" checked> Factory notes</label>
+                <label class="midi-check"><input id="midiClockToggle" type="checkbox"> Clock sync</label>
+                <label class="midi-check"><input id="midiEmbedToggle" type="checkbox"> Maps nas cenas</label>
+                <label class="midi-check"><input id="midiLedToggle" type="checkbox"> LED pads</label>
+              </div>
+              <div class="midi-toolbar midi-toolbar--actions">
+                <button id="midiExportBtn" type="button" class="btn-ghost">Export JSON</button>
+                <button id="midiImportBtn" type="button" class="btn-ghost">Import JSON</button>
+                <button id="midiClearBtn" type="button" class="btn-ghost btn-danger">Clear Map</button>
+                <input id="midiImportFile" type="file" accept="application/json,.json" hidden>
+              </div>
+              <div class="midi-bindings" id="midiBindingsList"></div>
+              <pre class="event-log midi-map-log" id="midiMapStatus"></pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="panel rack-panel" id="rack">
-        <h2 class="panel-title"><span class="idx">07</span>Instrument Stack</h2>
-        <p class="panel-hint">Enable, sculpt e equacao por camada. Use "Assign Pad" para ligar um pad MIDI a cada instrumento.</p>
-        <div class="instrument-list" id="instrumentRack"></div>
-      </section>
 
-      <section class="panel equation-panel" id="equations">
-        <h2 class="panel-title"><span class="idx">08</span>Equation Engine</h2>
-        <h3 class="panel-subhead">Biblioteca</h3>
-        <div class="equation-library" id="equationLibrary"></div>
-        <h3 class="panel-subhead">Current Equation Context</h3>
-        <div class="eq-monitor" id="equationMonitor"></div>
-        <h3 class="panel-subhead">Runtime Equation Inspector</h3>
-        <div class="eq-live-grid" id="equationLiveGrid"></div>
+      <section class="panel workflow-panel" id="workflow" data-zone="guide">
+        <h2 class="panel-title"><span class="idx">·</span>Fluxo</h2>
+        <ol class="workflow-grid">
+          <li class="workflow-step">
+            <span class="workflow-num">01</span>
+            <h3>Stage</h3>
+            <p>Power, Demo, leia o HUD e os graficos.</p>
+          </li>
+          <li class="workflow-step">
+            <span class="workflow-num">02</span>
+            <h3>Rack</h3>
+            <p>Esculpa camadas, pads MIDI e FX insert.</p>
+          </li>
+          <li class="workflow-step">
+            <span class="workflow-num">03</span>
+            <h3>Compose</h3>
+            <p>Estilo, cenas e morph ao vivo.</p>
+          </li>
+          <li class="workflow-step">
+            <span class="workflow-num">04</span>
+            <h3>Demo</h3>
+            <p>Modo Demo para apresentações e gravações.</p>
+          </li>
+        </ol>
       </section>
     </div>
   </main>
@@ -498,7 +628,25 @@
     Digital twin do seu futuro controlador. No rig real, roteie a saida de audio do carputer para a pedalboard externa (P10) e use o FX interno apenas como preview.
   </footer>
 
-  <button id="graphFocusBtn" class="graph-focus-btn led-btn" type="button">Modo Graficos</button>
+  <div class="demo-chrome" id="demoChrome" hidden>
+    <div class="demo-chrome-brand">
+      <span class="demo-chrome-phi" aria-hidden="true">&phi;</span>
+      <div>
+        <strong>Fractal // Live</strong>
+        <small>digital twin · performance view</small>
+      </div>
+    </div>
+    <div class="demo-chrome-center">
+      <span class="demo-rec-dot" aria-hidden="true"></span>
+      <ol class="ds-progress" id="dsProgress" aria-label="Slides do demo"></ol>
+      <div class="demo-chrome-meta" id="demoChromeMeta">DEMO</div>
+    </div>
+    <div class="demo-chrome-actions">
+      <button type="button" class="btn-ghost" id="demoTechToggle" aria-pressed="false">Tech</button>
+      <button type="button" class="led-btn" id="demoExitBtn">Studio</button>
+    </div>
+  </div>
+  <div class="demo-enter-flash" id="demoEnterFlash" aria-hidden="true"></div>
 
   <script type="module" src="src/main.js"></script>
 </body>

@@ -1,0 +1,227 @@
+/* Demo guiado — slides que explicam o algoritmo com dados ao vivo */
+
+.demo-stage,
+.ds-progress {
+  display: none;
+}
+
+.graphs-only:not([data-demo-slide="overview"]) .visual-panel {
+  display: none !important;
+}
+
+.graphs-only:not([data-demo-slide="overview"]) .demo-stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  min-height: 0;
+  height: 100%;
+}
+
+.ds-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 18px;
+  padding: 2px 2px 0;
+}
+
+.ds-idx {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+.ds-title {
+  margin: 0;
+  color: var(--fg);
+  font-size: clamp(1.1rem, 1.6vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.ds-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  color: var(--fg);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ds-change[hidden] {
+  display: none;
+}
+
+.ds-change-tag {
+  color: var(--warn);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+}
+
+.ds-change-k {
+  color: var(--fg-dim);
+}
+
+.ds-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 25%);
+  gap: 16px;
+  min-height: 0;
+}
+
+.ds-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--line);
+  background: var(--canvas-bg);
+}
+
+.ds-side {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.ds-formula {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--canvas-bg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-f-main {
+  color: var(--fg);
+  font-size: clamp(0.86rem, 1vw, 1.02rem);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ds-f-sub {
+  color: var(--fg-dim);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ds-f-sub:last-child {
+  color: var(--accent);
+}
+
+.ds-readout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 14px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.76rem;
+}
+
+.ds-readout dt {
+  color: var(--fg-mute);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+.ds-readout dd {
+  margin: 0;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Progresso na barra do demo */
+.graphs-only .ds-progress {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-step {
+  --p: 0;
+  position: relative;
+  padding: 3px 7px 5px;
+  color: var(--fg-mute);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ds-step::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--line-strong) calc(var(--p) * 100%), var(--line) calc(var(--p) * 100%));
+}
+
+.ds-step.is-current {
+  color: var(--fg);
+}
+
+.ds-step.is-current::after {
+  background: linear-gradient(to right, var(--accent) calc(var(--p) * 100%), var(--line) calc(var(--p) * 100%));
+}
+
+@media (max-width: 1100px) {
+  .ds-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(260px, 1fr) auto;
+  }
+
+  .ds-side {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+
+  .ds-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ds-change {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .graphs-only .demo-chrome-meta {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .ds-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ds-step {
+    font-size: 0;
+    padding: 3px 6px 5px;
+  }
+
+  .ds-step::after {
+    left: 2px;
+    right: 2px;
+  }
+}

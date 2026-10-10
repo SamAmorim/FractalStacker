@@ -1,4 +1,5 @@
 import { PHI } from "../config/constants.js";
+import { createInstrumentFx, createMasterFx } from "../config/fx-defaults.js";
 import { INSTRUMENT_DEFAULTS } from "../config/instruments.js";
 
 export const state = {
@@ -21,24 +22,19 @@ export const state = {
   plotFrozen: false,
   phiSensitivity: "balanced",
   graphsOnly: false,
+  demoTech: false,
+  demo: {
+    slide: 0,
+    barsPerSlide: 4,
+    focusInstId: null
+  },
   envelope: {
     attack: 0.01,
     decay: 0.18,
     sustain: 0.56,
     release: 0.26
   },
-  fx: {
-    enabled: false,
-    wahEnabled: false,
-    wahRate: 1.6,
-    wahDepth: 820,
-    delayEnabled: true,
-    delayTime: 0.29,
-    delayFeedback: 0.34,
-    delayMix: 0.24,
-    reverbEnabled: true,
-    reverbAmount: 0.2
-  },
+  fx: createMasterFx(),
   music: {
     style: "downtempo",
     harmonicRhythm: 2,
@@ -77,7 +73,7 @@ export const state = {
   },
   scheduler: {
     lookAheadMs: 25,
-    scheduleAheadSec: 0.12,
+    scheduleAheadSec: 0.18,
     timerId: null,
     nextNoteTime: 0,
     currentStep: 0
@@ -101,6 +97,7 @@ export const state = {
       octave: inst.octave,
       stepDiv: inst.stepDiv,
       seedOffset: inst.seedOffset,
+      fx: createInstrumentFx(inst.fx),
       eqState: {},
       lastValue: 0
     };
@@ -152,13 +149,31 @@ export const state = {
   midi: {
     connected: false,
     access: null,
+    selectedInputId: "all",
+    selectedOutputId: "none",
+    channelFilter: -1,
     lastMessage: "none",
     learnArmed: false,
     pendingTargetId: null,
     padLearnInstrumentId: null,
     padMap: {},
+    noteMap: {},
     ccMap: {},
-    defaultMapEnabled: true
+    modes: {},
+    pitchBendTarget: null,
+    aftertouchTarget: null,
+    tapTimes: [],
+    learnLastCcValue: {},
+    defaultMapEnabled: true,
+    factoryPresetsEnabled: true,
+    clockSyncEnabled: false,
+    embedInScenes: false,
+    ledFeedback: false,
+    clock: {
+      lastTickAt: 0,
+      intervals: [],
+      bpm: null
+    }
   }
 };
 
