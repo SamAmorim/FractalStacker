@@ -7,21 +7,23 @@ import { appendLog } from "./log.js";
 import { refreshEngineStatus } from "./status.js";
 
 let lastProgressionKey = "";
+let progressionPowerBound = false;
 
 export function applyStylePreset(styleKey) {
   const preset = STYLE_PRESETS[styleKey];
   if (!preset) {
     return;
   }
+  const params = preset.params || preset;
   state.music.style = styleKey;
-  setControlValue("harmonicRhythm", preset.harmonicRhythm);
-  setControlValue("complexity", preset.complexity);
-  setControlValue("humanize", preset.humanize);
-  setControlValue("motifMemory", preset.motifMemory);
-  setControlValue("sidechain", preset.sidechain);
-  setControlValue("arpPattern", preset.arpPattern);
-  setControlValue("arpRate", preset.arpRate);
-  setControlValue("arpOctaves", preset.arpOctaves);
+  setControlValue("harmonicRhythm", params.harmonicRhythm);
+  setControlValue("complexity", params.complexity);
+  setControlValue("humanize", params.humanize);
+  setControlValue("motifMemory", params.motifMemory);
+  setControlValue("sidechain", params.sidechain);
+  setControlValue("arpPattern", params.arpPattern);
+  setControlValue("arpRate", params.arpRate);
+  setControlValue("arpOctaves", params.arpOctaves);
   lastProgressionKey = "";
 }
 
@@ -90,6 +92,17 @@ export function bindComposeControls() {
     lastProgressionKey = "";
     appendLog("nova semente " + music.seed + " -> progressao e motivo regenerados no proximo compasso");
   });
+
+  if (dom.progressionChords && !progressionPowerBound) {
+    progressionPowerBound = true;
+    dom.progressionChords.addEventListener("click", function (event) {
+      const powerChip = event.target.closest("[data-power-on]");
+      if (!powerChip || state.powered || !dom.powerBtn) {
+        return;
+      }
+      dom.powerBtn.click();
+    });
+  }
 }
 
 export function renderProgression() {
@@ -110,7 +123,8 @@ export function renderProgression() {
   dom.energyFill.style.width = energyPct + "%";
 
   if (!state.powered) {
-    dom.progressionChords.innerHTML = "<span class=\"chord-chip idle\">power on</span>";
+    dom.progressionChords.innerHTML =
+      "<button type=\"button\" class=\"chord-chip idle power-chip\" data-power-on>Power On</button>";
   } else if (!progression.length || !compose.chord) {
     dom.progressionChords.innerHTML = "<span class=\"chord-chip idle\">" +
       (STYLE_PRESETS[state.music.style].legacy ? "motor classico" : "escala atonal: livre") + "</span>";

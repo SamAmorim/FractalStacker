@@ -62,6 +62,19 @@
   text-transform: uppercase;
 }
 
+button.chord-chip.power-chip {
+  cursor: pointer;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+button.chord-chip.power-chip:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: var(--glow-box);
+}
+
 .energy-track {
   height: 6px;
   border: 1px solid var(--line-strong);

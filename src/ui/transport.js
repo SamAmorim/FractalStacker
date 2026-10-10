@@ -35,7 +35,7 @@ export function setGraphsOnlyMode(enabled, silent) {
   }
 }
 
-async function togglePower() {
+export async function togglePower() {
   await ensureAudio();
 
   if (!state.powered) {
@@ -63,13 +63,15 @@ async function togglePower() {
   refreshEngineStatus();
 }
 
-export function bindButtons() {
-  dom.powerBtn.addEventListener("click", function () {
-    togglePower().catch(function (error) {
-      appendLog("power error: " + error.message);
-      refreshEngineStatus();
-    });
+function runTogglePower() {
+  togglePower().catch(function (error) {
+    appendLog("power error: " + error.message);
+    refreshEngineStatus();
   });
+}
+
+export function bindButtons() {
+  dom.powerBtn.addEventListener("click", runTogglePower);
 
   dom.midiBtn.addEventListener("click", function () {
     initMidi();
@@ -100,10 +102,7 @@ export function bindButtons() {
 
     if (event.key === " " || event.code === "Space") {
       event.preventDefault();
-      togglePower().catch(function (error) {
-        appendLog("power error: " + error.message);
-        refreshEngineStatus();
-      });
+      runTogglePower();
       return;
     }
 
