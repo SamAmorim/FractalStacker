@@ -16,6 +16,11 @@
   color: var(--accent);
 }
 
+.scene-panel.is-off .controls-grid,
+.scene-panel.is-off .scene-actions {
+  opacity: 0.4;
+}
+
 .scene-status {
   margin-top: 10px;
   min-height: 36px;

@@ -131,6 +131,7 @@ export const state = {
     positions: {}
   },
   scenes: {
+    enabled: true,
     selectedSlot: "A",
     quantize: "bar",
     transitionSec: 0.4,

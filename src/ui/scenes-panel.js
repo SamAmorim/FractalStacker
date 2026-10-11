@@ -5,6 +5,7 @@ import {
   queueSceneRecall,
   sanitizeSceneSlot,
   saveSceneSlot,
+  setScenesEnabled,
   setSelectedSceneSlot,
   shiftSceneSlot
 } from "../scenes/scenes.js";
@@ -55,11 +56,39 @@ export function syncSceneUiFromState() {
   if (dom.sceneTransitionVal) {
     dom.sceneTransitionVal.textContent = transitionSec.toFixed(2) + " s";
   }
+
+  const enabled = state.scenes.enabled !== false;
+  if (dom.scenesEnabled) {
+    dom.scenesEnabled.checked = enabled;
+  }
+  if (dom.scenePanel) {
+    dom.scenePanel.classList.toggle("is-off", !enabled);
+  }
+  [
+    dom.sceneSlotSelect,
+    dom.sceneQuantizeSelect,
+    dom.sceneTransition,
+    dom.sceneSaveBtn,
+    dom.sceneRecallBtn,
+    dom.scenePrevBtn,
+    dom.sceneNextBtn,
+    dom.sceneRecallFxBtn
+  ].forEach(function (control) {
+    if (control) {
+      control.disabled = !enabled;
+    }
+  });
 }
 
 export function bindSceneControls() {
   if (!dom.sceneSlotSelect || !dom.sceneQuantizeSelect || !dom.sceneTransition) {
     return;
+  }
+
+  if (dom.scenesEnabled) {
+    dom.scenesEnabled.addEventListener("change", function (event) {
+      setScenesEnabled(event.target.checked);
+    });
   }
 
   dom.sceneSlotSelect.addEventListener("change", function (event) {

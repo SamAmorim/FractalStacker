@@ -23,6 +23,29 @@ const SCENE_STORAGE_KEY = "fractalstacker.liveScenes.v1";
 
 const SCENE_SLOTS = ["A", "B", "C"];
 
+const SCENES_OFF_MESSAGE = "Scenes desativadas.";
+
+function scenesBlocked() {
+  if (state.scenes.enabled) {
+    return false;
+  }
+  setSceneStatus(SCENES_OFF_MESSAGE, true);
+  return true;
+}
+
+export function setScenesEnabled(enabled) {
+  state.scenes.enabled = !!enabled;
+  if (!state.scenes.enabled) {
+    state.scenes.pendingRecall = null;
+    state.sceneTransition.untilMs = 0;
+  }
+  syncSceneUiFromState();
+  persistScenes();
+  renderMidiMappingStatus();
+  setSceneStatus(state.scenes.enabled ? sceneStatusMessage(state.scenes.selectedSlot) : SCENES_OFF_MESSAGE, false);
+  appendLog("scenes " + (state.scenes.enabled ? "on" : "off"));
+}
+
 export function sanitizeSceneSlot(slot) {
   const normalized = String(slot || "").toUpperCase();
   return SCENE_SLOTS.indexOf(normalized) >= 0 ? normalized : SCENE_SLOTS[0];
@@ -124,6 +147,7 @@ export function persistScenes() {
       schema: "fractalstacker.scenes",
       version: 1,
       updatedAt: new Date().toISOString(),
+      enabled: state.scenes.enabled,
       selectedSlot: state.scenes.selectedSlot,
       quantize: state.scenes.quantize,
       transitionSec: state.scenes.transitionSec,
@@ -158,6 +182,7 @@ export function loadScenes() {
       return;
     }
 
+    state.scenes.enabled = payload.enabled !== false;
     state.scenes.selectedSlot = sanitizeSceneSlot(payload.selectedSlot || state.scenes.selectedSlot);
     state.scenes.quantize = payload.quantize === "immediate" || payload.quantize === "beat" || payload.quantize === "bar"
       ? payload.quantize
@@ -170,7 +195,7 @@ export function loadScenes() {
     });
 
     syncSceneUiFromState();
-    setSceneStatus("Scenes carregadas do storage local.", false);
+    setSceneStatus(state.scenes.enabled ? "Scenes carregadas do storage local." : SCENES_OFF_MESSAGE, false);
   } catch (error) {
     setSceneStatus("Erro ao carregar scenes: " + error.message, true);
   }
@@ -193,6 +218,9 @@ export function shiftSceneSlot(direction) {
 }
 
 export function saveSceneSlot(slot, sourceLabel) {
+  if (scenesBlocked()) {
+    return false;
+  }
   const safeSlot = sanitizeSceneSlot(slot || state.scenes.selectedSlot);
   const snapshot = createSceneSnapshot(safeSlot);
   state.scenes.slots[safeSlot] = snapshot;
@@ -245,6 +273,9 @@ function applyFxFromSnapshot(fx, instruments) {
 }
 
 export function applyFxOnlyFromScene(slot, sourceLabel) {
+  if (scenesBlocked()) {
+    return false;
+  }
   const safeSlot = sanitizeSceneSlot(slot || state.scenes.selectedSlot);
   const snapshot = state.scenes.slots[safeSlot];
   if (!snapshot || !snapshot.fx) {
@@ -389,6 +420,9 @@ function applySceneSnapshot(snapshot, slot, sourceLabel) {
 }
 
 export function queueSceneRecall(slot, sourceLabel) {
+  if (scenesBlocked()) {
+    return false;
+  }
   const safeSlot = sanitizeSceneSlot(slot || state.scenes.selectedSlot);
   const snapshot = state.scenes.slots[safeSlot];
   if (!snapshot) {
@@ -420,7 +454,7 @@ export function queueSceneRecall(slot, sourceLabel) {
 
 export function processPendingSceneRecall(step, isBeatStart, isBarStart) {
   const pending = state.scenes.pendingRecall;
-  if (!pending) {
+  if (!pending || !state.scenes.enabled) {
     return;
   }
 

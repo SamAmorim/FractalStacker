@@ -28,6 +28,8 @@ export const dom = {
   plotCycleBarsVal: document.getElementById("plotCycleBarsVal"),
   freezePlotInstrument: document.getElementById("freezePlotInstrument"),
   phiSensitivity: document.getElementById("phiSensitivity"),
+  scenesEnabled: document.getElementById("scenesEnabled"),
+  scenePanel: document.getElementById("scenes"),
   sceneSlotSelect: document.getElementById("sceneSlotSelect"),
   sceneSlotVal: document.getElementById("sceneSlotVal"),
   sceneQuantizeSelect: document.getElementById("sceneQuantizeSelect"),
